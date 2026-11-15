@@ -57,7 +57,11 @@ export const deleteWsPspKey = createServerFn({ method: "POST" })
 export const getPublicWsSupport = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().max(40) }).parse(d))
   .handler(async ({ data }) => {
-    await (await import("@/lib/platform-features.server")).assertPlatformFeature("tips");
+    try {
+      await (await import("@/lib/platform-features.server")).assertPlatformFeature("tips");
+    } catch {
+      return null;
+    }
     const { readPublicWsSupport } = await import("./workspace-support.server");
     return readPublicWsSupport(data.slug.toLowerCase());
   });
