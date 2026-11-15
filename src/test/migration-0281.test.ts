@@ -30,8 +30,8 @@ beforeAll(async () => {
       ('${HUMAN}', true, 'Cy W', 'w_identity', 'h3'),
       ('${NOT_VERIFIED}', true, 'Di Didit', 'didit', 'h4'),
       ('${FAILED}', false, 'Ed P', 'didit', 'h5');
-    insert into public.verified_identities (user_id, identity_nullifier, provider, tier, tier_1_real_human, tier_2_legal_identity, legal_name) values
-      ('${UPGRADED}', 'n2', 'w_identity', 'tier_2_legal_identity', true, true, 'Bo Legal');
+    insert into public.verified_identities (user_id, identity_nullifier, provider, tier, tier_1_real_human, tier_2_legal_identity, national_id_nullifier, legal_name) values
+      ('${UPGRADED}', 'n2', 'w_identity', 'tier_2_legal_identity', true, true, 'nid2', 'Bo Legal');
   `);
 }, 300_000);
 afterAll(async () => { await db?.close(); });
