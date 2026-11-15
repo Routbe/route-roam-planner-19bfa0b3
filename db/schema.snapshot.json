@@ -33041,6 +33041,18 @@
     },
     {
       "schema": "public",
+      "name": "rout_public_didit_member_count",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_public_didit_member_count()\n RETURNS integer\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'pg_temp'\nAS $function$\n  select pg_catalog.count(*)::integer\n    from public.profiles p\n    left join public.identity_verifications iv on iv.user_id = p.id\n    left join public.verified_identities vi on vi.user_id = p.id\n   where p.username is not null\n     and coalesce(p.is_banned, false) = false\n     and coalesce(p.is_suspended, false) = false\n     and ((coalesce(iv.is_verified, false) and iv.verification_provider::text = 'didit')\n       or (coalesce(vi.tier_2_legal_identity, false) and vi.national_id_nullifier is not null))\n$function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_public_identity_badges",
+      "args": "p_user_ids uuid[]",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_public_identity_badges(p_user_ids uuid[])\n RETURNS TABLE(user_id uuid, didit_legal_identity boolean, real_human boolean)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'pg_temp'\nAS $function$\n  with t as (\n    select p.id,\n      (coalesce(iv.is_verified, false) and iv.verification_provider::text = 'didit')\n        or (coalesce(vi.tier_2_legal_identity, false) and vi.national_id_nullifier is not null) as legal,\n      coalesce(vi.tier_1_real_human, false)\n        or (coalesce(iv.is_verified, false) and iv.verification_provider::text in ('w_identity', 'didit', 'manual')) as human\n    from public.profiles p\n    left join public.identity_verifications iv on iv.user_id = p.id\n    left join public.verified_identities vi on vi.user_id = p.id\n    where p.id = any (coalesce(p_user_ids[1:200], '{}'::uuid[]))\n  )\n  select t.id, t.legal, t.legal or t.human from t\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "rout_public_identity_tiers",
       "args": "p_user_id uuid",
       "def": "CREATE OR REPLACE FUNCTION public.rout_public_identity_tiers(p_user_id uuid)\n RETURNS TABLE(tier_1_real_human boolean, tier_2_legal_identity boolean)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'pg_temp'\nAS $function$\n  with t as (\n    select\n      coalesce(vi.tier_2_legal_identity, false)\n        or (coalesce(iv.is_verified, false) and iv.verification_provider::text in ('didit', 'itsme', 'eid')) as legal,\n      coalesce(vi.tier_1_real_human, false)\n        or (coalesce(iv.is_verified, false) and iv.verification_provider::text in ('w_identity', 'didit', 'itsme', 'eid', 'manual')) as human\n    from public.profiles p\n    left join public.identity_verifications iv on iv.user_id = p.id\n    left join public.verified_identities vi on vi.user_id = p.id\n    where p.id = p_user_id\n      and coalesce(p.verified, false) = true\n  )\n  select t.human or t.legal, t.legal from t\n$function$"
