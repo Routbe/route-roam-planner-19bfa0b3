@@ -5,10 +5,13 @@
  */
 export type IdentityProviderId = "w_identity" | "didit" | "itsme" | "eid" | "manual" | "passkey";
 
-/** Providers whose result is a legal name from a government document. */
-const LEGAL_PROVIDERS: readonly IdentityProviderId[] = ["didit", "itsme", "eid"];
+/**
+ * Providers whose result is a legal name from a government document. Owner decision 2026-11-15:
+ * the blue identity mark comes only from a completed Didit attestation (db/0282).
+ */
+const LEGAL_PROVIDERS: readonly IdentityProviderId[] = ["didit"];
 /** Providers that prove uniqueness on their own. A passkey proves device ownership, not uniqueness. */
-const UNIQUE_HUMAN_PROVIDERS: readonly IdentityProviderId[] = ["w_identity", "didit", "itsme", "eid", "manual"];
+const UNIQUE_HUMAN_PROVIDERS: readonly IdentityProviderId[] = ["w_identity", "didit", "manual"];
 
 export type IdentityTiers = { tier1RealHuman: boolean; tier2LegalIdentity: boolean };
 

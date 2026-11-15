@@ -2035,5 +2035,6 @@
   "profile.sealedSent": "Deine Anfrage wurde verschlüsselt gesendet. ROUT schickt dir keine E-Mail, weil wir deine Adresse nicht kennen: Der Gastgeber liest deine Angaben auf seinem eigenen Gerät und meldet sich selbst bei dir.",
   "profile.sealedHostKeyMissing": "Dieses Profil kann noch keine verschlüsselten Anfragen empfangen. Bitte versuche es später erneut.",
   "profile.sealedUnavailable": "Dieses Profil nimmt im Moment keine Termine an.",
-  "profile.sealedPastDate": "Wähle ein Datum in der Zukunft."
+  "profile.sealedPastDate": "Wähle ein Datum in der Zukunft.",
+  "profile.supporter.label": "ROUT-Unterstützer"
 }

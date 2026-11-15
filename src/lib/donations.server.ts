@@ -68,8 +68,10 @@ export async function readDonationTarget(rawHandle: string): Promise<DonationTar
   // A profile the member set to private gets no public donation page either.
   if (!prefs.publicProfile) return null;
   const { publicBadgeKind } = await import("./badge-rules");
+  const { readPublicIdentity } = await import("./identity/public-identity.server");
+  const diditVerified = (await readPublicIdentity(String(profile["id"]))).diditVerified;
   const badge = publicBadgeKind({
-    verified: profile["verified"] === true,
+    diditVerified,
     isBusiness: false,
     isInfluencer: false,
     badgeVisible: prefs.badgeVisible,
@@ -82,7 +84,7 @@ export async function readDonationTarget(rawHandle: string): Promise<DonationTar
     displayName: (profile["display_name"] as string | null) ?? null,
     tagline: (profile["tagline"] as string | null) ?? null,
     avatarUrl: (profile["avatar_url"] as string | null) ?? null,
-    verified: profile["verified"] === true,
+    verified: diditVerified,
     badgeVisible: prefs.badgeVisible,
     badgeType: prefs.badgeType,
     badgeNameFormat: prefs.badgeNameFormat,

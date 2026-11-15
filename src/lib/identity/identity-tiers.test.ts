@@ -5,6 +5,10 @@ describe("identity tiers", () => {
   it("Didit passport gives both tiers", () => {
     expect(tiersFor([{ provider: "didit", verified: true }])).toEqual({ tier1RealHuman: true, tier2LegalIdentity: true });
   });
+  it("only Didit grants the legal tier (owner decision 2026-11-15)", () => {
+    expect(tiersFor([{ provider: "itsme", verified: true }]).tier2LegalIdentity).toBe(false);
+    expect(tiersFor([{ provider: "eid", verified: true }]).tier2LegalIdentity).toBe(false);
+  });
   it("W Identity gives only tier 1", () => {
     expect(tiersFor([{ provider: "w_identity", verified: true }])).toEqual({ tier1RealHuman: true, tier2LegalIdentity: false });
   });

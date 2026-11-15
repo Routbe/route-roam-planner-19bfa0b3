@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api_/badge/verify")({
         try {
           const { sql } = await import("@/lib/neon");
           const rows = (await sql`
-            select p.id, coalesce(p.verified, false) as verified
+            select p.id
               from public.profiles p
              where lower(p.username) = ${handle}
                and coalesce(p.is_banned, false) = false
@@ -49,7 +49,9 @@ export const Route = createFileRoute("/api_/badge/verify")({
           `) as { domain: string }[];
           const domains = [...ROUT_HOSTS, ...domainRows.map((d) => d.domain)];
           const originMatches = host !== null && hostMatchesDomains(host, domains);
-          const verifiedHuman = profile["verified"] === true;
+          // A payment or admin flag never counts: only a completed Didit check (db/0282).
+          const { readPublicIdentity } = await import("@/lib/identity/public-identity.server");
+          const verifiedHuman = (await readPublicIdentity(String(profile["id"]))).diditVerified;
           return new Response(
             JSON.stringify({
               valid: true,

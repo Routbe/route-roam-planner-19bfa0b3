@@ -1045,5 +1045,8 @@
   "booking.inquiry.status.pending": "Neu",
   "booking.inquiry.status.accepted": "Angenommen",
   "booking.inquiry.status.declined": "Abgelehnt",
-  "booking.inquiry.done": "Gespeichert. ROUT schreibt dem Gast keine E-Mail; antworte selbst, wenn du möchtest."
+  "booking.inquiry.done": "Gespeichert. ROUT schreibt dem Gast keine E-Mail; antworte selbst, wenn du möchtest.",
+  "studio.editor.diditOnlyHint": "Das blaue Häkchen erscheint nur nach einer abgeschlossenen Identitätsprüfung mit Didit. Eine Zahlung oder ein Pro-Abo gewährt es nicht.",
+  "studio.editor.supporterBadge": "Unterstützer-Krone anzeigen",
+  "studio.editor.supporterHelp": "Eine dezente Krone neben deinem Namen zeigt, dass du ROUT unterstützt. Sie sagt nichts über deine Identität."
 }

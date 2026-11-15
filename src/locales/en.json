@@ -2035,5 +2035,6 @@
   "profile.sealedSent": "Your request was sent encrypted. ROUT will not email you, because we do not know your address: the host reads your details on their own device and contacts you directly.",
   "profile.sealedHostKeyMissing": "This profile cannot receive encrypted requests yet. Please try again later.",
   "profile.sealedUnavailable": "This profile is not accepting appointments right now.",
-  "profile.sealedPastDate": "Pick a date in the future."
+  "profile.sealedPastDate": "Pick a date in the future.",
+  "profile.supporter.label": "ROUT Supporter"
 }

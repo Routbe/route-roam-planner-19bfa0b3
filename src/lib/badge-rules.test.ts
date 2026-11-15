@@ -1,19 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { publicBadgeKind } from "./badge-rules";
+import { publicBadgeKind, showsSupporterCrown } from "./badge-rules";
 
-const base = { verified: true, isBusiness: false, isInfluencer: false, badgeVisible: true, badgeType: "verified" as const };
+const base = { diditVerified: true, isBusiness: false, isInfluencer: false, badgeVisible: true, badgeType: "verified" as const };
 
 describe("publicBadgeKind", () => {
-  it("never shows a trust mark for an unverified profile", () => {
-    expect(publicBadgeKind({ ...base, verified: false })).toBeNull();
-    expect(publicBadgeKind({ ...base, verified: false, badgeType: "human" })).toBeNull();
+  it("never shows a trust mark without a completed Didit check", () => {
+    expect(publicBadgeKind({ ...base, diditVerified: false })).toBeNull();
+    expect(publicBadgeKind({ ...base, diditVerified: false, badgeType: "human" })).toBeNull();
+    expect(publicBadgeKind({ ...base, diditVerified: false, isBusiness: true })).toBeNull();
   });
   it("respects the owner hiding the badge", () => {
     expect(publicBadgeKind({ ...base, badgeVisible: false })).toBeNull();
     expect(publicBadgeKind({ ...base, badgeType: "none" })).toBeNull();
-  });
-  it("drops the badge when the legal identity check was withdrawn", () => {
-    expect(publicBadgeKind({ ...base, legalIdentityVerified: false })).toBeNull();
   });
   it("shows the privacy shield only for a verified member who chose it", () => {
     expect(publicBadgeKind({ ...base, badgeType: "human" })).toBe("human");
@@ -22,5 +20,15 @@ describe("publicBadgeKind", () => {
     expect(publicBadgeKind({ ...base, badgeType: "influencer" })).toBe("verified");
     expect(publicBadgeKind({ ...base, isInfluencer: true })).toBe("influencer");
     expect(publicBadgeKind({ ...base, isBusiness: true, isInfluencer: true })).toBe("domain");
+  });
+});
+
+describe("showsSupporterCrown", () => {
+  it("a Pro/paying member gets the crown, separate from identity", () => {
+    expect(showsSupporterCrown({ isPro: true, supporterBadgeVisible: true })).toBe(true);
+  });
+  it("no crown without Pro, or when the member hides it", () => {
+    expect(showsSupporterCrown({ isPro: false, supporterBadgeVisible: true })).toBe(false);
+    expect(showsSupporterCrown({ isPro: true, supporterBadgeVisible: false })).toBe(false);
   });
 });

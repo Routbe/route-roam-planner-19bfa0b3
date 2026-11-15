@@ -15,7 +15,7 @@ export async function readOgProfile(handle: string, space: "root" | "alias" | "w
          and coalesce(p.status::text, 'active') not in ('frozen', 'banned', 'suspended')
        limit 1`
     : await sql`
-      select display_name, tagline, bio, avatar_url, verified,
+      select p.id, display_name, tagline, bio, avatar_url,
              p.display_prefs as display_prefs,
              p.theme::text as theme,
              coalesce((p.is_business::text)::boolean, false) as is_business,
@@ -26,7 +26,14 @@ export async function readOgProfile(handle: string, space: "root" | "alias" | "w
          and coalesce(p.status::text, 'active') not in ('frozen', 'banned', 'suspended')
        limit 1`;
   const row = rows[0] as Record<string, unknown> | undefined;
-  return row && parseDisplayPrefs(row.display_prefs).publicProfile ? row : null;
+  if (!row || !parseDisplayPrefs(row.display_prefs).publicProfile) return null;
+  if (space === "root") {
+    // Share cards and the embed badge carry the identity mark only after a Didit check (db/0282).
+    const { readPublicIdentity } = await import("@/lib/identity/public-identity.server");
+    row.verified = (await readPublicIdentity(String(row.id))).diditVerified;
+    delete row.id;
+  }
+  return row;
 }
 
 /** Workspace card: published Studio design when public, else the public name/logo/intro the /w/ page also shows. */

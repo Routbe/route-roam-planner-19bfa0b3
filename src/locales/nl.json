@@ -2035,5 +2035,6 @@
   "profile.sealedSent": "Je aanvraag is versleuteld verstuurd. ROUT stuurt je geen e-mail, want we kennen je adres niet: de host leest je gegevens op het eigen toestel en neemt zelf contact met je op.",
   "profile.sealedHostKeyMissing": "Dit profiel kan nog geen versleutelde aanvragen ontvangen. Probeer het later opnieuw.",
   "profile.sealedUnavailable": "Dit profiel neemt momenteel geen afspraken aan.",
-  "profile.sealedPastDate": "Kies een datum in de toekomst."
+  "profile.sealedPastDate": "Kies een datum in de toekomst.",
+  "profile.supporter.label": "ROUT Supporter"
 }

@@ -2035,5 +2035,6 @@
   "profile.sealedSent": "Votre demande a été envoyée chiffrée. ROUT ne vous enverra pas d'e-mail, car nous ne connaissons pas votre adresse : l'hôte lit vos données sur son propre appareil et vous contacte lui-même.",
   "profile.sealedHostKeyMissing": "Ce profil ne peut pas encore recevoir de demandes chiffrées. Réessayez plus tard.",
   "profile.sealedUnavailable": "Ce profil n'accepte pas de rendez-vous pour le moment.",
-  "profile.sealedPastDate": "Choisissez une date dans le futur."
+  "profile.sealedPastDate": "Choisissez une date dans le futur.",
+  "profile.supporter.label": "Soutien ROUT"
 }
