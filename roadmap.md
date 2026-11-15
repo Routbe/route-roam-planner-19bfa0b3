@@ -305,3 +305,6 @@
 - [ ] F2.2 "Zet eerst je hoofdsleutel op dit toestel": nette kaart met Primair toestel / 3-van-4 herstel
 - [ ] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
 - [ ] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
+- [ ] db/0281 (Didit-resultaat voor het vinkje) live op Neon: wacht op GO van de eigenaar
+- [ ] F1.3 werkruimte-steunpagina en -vragen: wacht op beslissing eigenaar (wie antwoordt, welke rekening) en een migratie
+- [ ] "Synchroniseer via primair toestel": wacht op een goedgekeurd protocol voor sleuteloverdracht
