@@ -113,3 +113,5 @@ use the editor.
 ## One-file migration rollout
 - A GO for a single migration is applied from chat with scripts/migration-rollout.ts: the exact db/ file text travels as one parameter, runs only if its SHA-256 equals the file checksum and its predecessor is recorded, and is recorded with the definer guard in the same transaction (dry run: src/test/migration-rollout.test.ts). Why: the Neon connection stays unlinked, so migrate-gateway.ts cannot run, and a retyped or hand-split file must never diverge from db/.
 <!-- AGENT-MEMORY:END -->
+
+- Source imported on 2026-11-15 from GitHub Routbe/route-roam-planner-83a5fe29 (main @ c7162b1); that repository is not synced with this project, so later changes there must be re-imported.
