@@ -297,14 +297,14 @@
 - [ ] OWNER_DATABASE_URL verwijderen (wacht op eigenaar)
 
 ## Vervolgdirectief 2026-11-15 (schema 0280)
-- [ ] F1.1 Studio-keuzelijsten: "Openbaar profiel" → "Hoofdprofiel" (nl/en/fr/de)
-- [ ] F1.2 Studio: tabblad Boekingen verbergen als het actieve profiel geen boekingen ondersteunt
-- [ ] F1.3 /w/<werkruimte>/support en /w/<werkruimte>/ask tonen wanneer ingeschakeld
-- [ ] F1.4 Studio Boekingen = formulier ontwerpen (keuze bij meerdere afspraaktypes); /studio/agenda = kalender; knop "Afspraaktypes & beschikbaarheid" → Studio
-- [ ] F1.5 /settings in drie delen: Profiel & Account, Beveiliging & Enclave, Sessie & Activiteit
-- [ ] F2.2 "Zet eerst je hoofdsleutel op dit toestel": nette kaart met Primair toestel / 3-van-4 herstel
-- [ ] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
-- [ ] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
+- [x] F1.1 Studio-keuzelijsten: "Openbaar profiel" → "Hoofdprofiel" (nl/en/fr/de)
+- [x] F1.2 Studio: tabblad Boekingen verbergen als het actieve profiel geen boekingen ondersteunt
+- [ ] F1.3 (geblokkeerd, zie hieronder) /w/<werkruimte>/support en /w/<werkruimte>/ask tonen wanneer ingeschakeld
+- [x] F1.4 Studio Boekingen = formulier ontwerpen (keuze bij meerdere afspraaktypes); /studio/agenda = kalender; knop "Afspraaktypes & beschikbaarheid" → Studio
+- [x] F1.5 /settings in drie delen: Profiel & Account, Beveiliging & Enclave, Sessie & Activiteit
+- [x] F2.2 "Zet eerst je hoofdsleutel op dit toestel": nette kaart met Primair toestel / 3-van-4 herstel
+- [x] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
+- [x] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
 - [ ] db/0281 (Didit-resultaat voor het vinkje) live op Neon: wacht op GO van de eigenaar
 - [ ] F1.3 werkruimte-steunpagina en -vragen: wacht op beslissing eigenaar (wie antwoordt, welke rekening) en een migratie
 - [ ] "Synchroniseer via primair toestel": wacht op een goedgekeurd protocol voor sleuteloverdracht
