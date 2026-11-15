@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Page from "@/components/imported-pages/AccountSettings";
+import { validateSettingsSearch } from "@/lib/settings-portal";
 
 export const Route = createFileRoute("/_authenticated/studio_/account")({
+  validateSearch: (search: Record<string, unknown>) => validateSettingsSearch(search),
   head: () => ({
     meta: [
       { title: "Account & Beveiliging | ROUT" },
