@@ -75,7 +75,7 @@ $function$;
 create or replace function public.rout_ws_support_norm(p text)
  returns text language sql immutable security definer set search_path = pg_catalog, pg_temp
 as $function$
-  select pg_catalog.regexp_replace(pg_catalog.lower(pg_catalog.normalize(coalesce(p, ''), NFKD)), '[^a-z0-9]', '', 'g')
+  select pg_catalog.regexp_replace(pg_catalog.lower(pg_catalog.normalize(coalesce(p, ''), 'NFKD')), '[^a-z0-9]', '', 'g')
 $function$;
 
 -- Managers: current settings, eligibility and linked providers (no key material).
