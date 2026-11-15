@@ -16,12 +16,13 @@ import { styledProfilePath, urlStyleForAtPreference, urlStyleHasAt } from "@/lib
 import { getVerificationState } from "@/lib/verification.functions";
 import { getWorkspaceContext } from "@/lib/workspaces.functions";
 import { getAccountStudioVariant, saveAccountStudioVariant } from "@/lib/ui-preferences.functions";
-import { verifiedTabUnlocked } from "@/lib/studio-access";
+import { studioPageModes, verifiedTabUnlocked, type StudioPageMode } from "@/lib/studio-access";
+import { getPlatformFeatures } from "@/lib/admin-platform.functions";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { IdentityVerification } from "@/components/settings/IdentityVerification";
 import { BookingStudioPanel } from "@/components/imported-pages/BookingStudio";
 
-type PageMode = "profile" | "tip" | "booking" | "qa";
+type PageMode = StudioPageMode;
 
 /** /studio — the dedicated Profile Hub (link-in-bio) workspace. */
 export default function Studio({ initialGrid = false }: { initialGrid?: boolean } = {}) {
@@ -82,6 +83,13 @@ export default function Studio({ initialGrid = false }: { initialGrid?: boolean 
     setVariant(saved);
     try { window.localStorage.setItem(variantKey, saved); } catch { /* negeren */ }
   }, [accountVariant.data, variantKey]);
+  // /studio/booking (Agenda → "Afspraaktypes & beschikbaarheid") always opens the main profile,
+  // the only profile that carries bookings. Declared after the stored-choice effects so it wins.
+  useEffect(() => {
+    if (searchPage !== "booking") return;
+    variantChosen.current = true;
+    setVariant("verified");
+  }, [searchPage, variantKey]);
   const chooseVariant = useCallback((next: ProfileVariant) => {
     variantChosen.current = true;
     setVariant(next);
@@ -99,6 +107,13 @@ export default function Studio({ initialGrid = false }: { initialGrid?: boolean 
     retry: false,
   });
   const unlocked = verifiedTabUnlocked(state.data);
+  // Platform-wide bookings switch (admin): a missing answer keeps bookings on, like the server does.
+  const featuresFn = useServerFn(getPlatformFeatures);
+  const features = useQuery({ queryKey: ["platform-features"], queryFn: () => featuresFn(), enabled: Boolean(user), retry: false, staleTime: 5 * 60_000 });
+  const bookingsAvailable = features.data?.bookings !== false;
+  const modesFor = (id: ProfileVariant) => studioPageModes({ variant: id, tipEnabled: pages.tipEnabled, qaEnabled: pages.qaEnabled, bookingsAvailable });
+  // A page that the selected profile does not offer (e.g. ?page=booking on the alias) falls back to the main profile.
+  const activeMode: PageMode = modesFor(variant).includes(pageMode) ? pageMode : pageMode === "booking" ? "profile" : pageMode;
   const { style: urlStyle } = useUrlStyle();
   // In workspace mode Studio means the workspace's own Profile Hub, not this person's.
   const ctxFn = useServerFn(getWorkspaceContext);
@@ -155,9 +170,9 @@ export default function Studio({ initialGrid = false }: { initialGrid?: boolean 
               </Button>;
               if (!selected || locked || (id !== "verified" && !pages.qaEnabled)) return <div key={id} className="flex min-w-0 flex-1">{trigger}</div>;
               return <DropdownMenu key={id}><DropdownMenuTrigger asChild><Button variant="ghost" role="tab" aria-selected aria-label={t("studio.mode.pages")} className="min-h-12 h-auto min-w-0 flex-1 md:min-h-14 justify-start gap-2 whitespace-normal rounded-lg px-3 py-2 text-left text-foreground">
-                {(() => { const M = modeIcon(pageMode, Icon); return <M className="size-4 shrink-0" />; })()}<span className="min-w-0 flex-1"><span className="block text-sm font-medium">{modeLabel(pageMode, label)}</span><span className="hidden break-all font-mono text-xs opacity-70 md:block">{tabUrl(id) ?? hint}{modeSuffix(pageMode)}</span></span><ChevronDown className="size-4 shrink-0" />
+                {(() => { const M = modeIcon(activeMode, Icon); return <M className="size-4 shrink-0" />; })()}<span className="min-w-0 flex-1"><span className="block text-sm font-medium">{modeLabel(activeMode, label)}</span><span className="hidden break-all font-mono text-xs opacity-70 md:block">{tabUrl(id) ?? hint}{modeSuffix(activeMode)}</span></span><ChevronDown className="size-4 shrink-0" />
               </Button></DropdownMenuTrigger><DropdownMenuContent align="start" className="w-72 max-w-[calc(100vw-24px)]">
-                {(["profile", "tip", "booking", "qa"] as const).filter(mode => (mode !== "tip" || pages.tipEnabled) && (mode !== "qa" || pages.qaEnabled) && (mode !== "booking" || id === "verified")).map(mode => { const M = modeIcon(mode, BadgeCheck); return <DropdownMenuItem key={mode} onSelect={() => setPageMode(mode)}><M className="size-4" /><span className="flex-1">{modeLabel(mode, t("studio.mode.profile"))}</span>{pageMode === mode && <Check className="size-4" />}</DropdownMenuItem>; })}
+                {modesFor(id).map(mode => { const M = modeIcon(mode, BadgeCheck); return <DropdownMenuItem key={mode} onSelect={() => setPageMode(mode)}><M className="size-4" /><span className="flex-1">{modeLabel(mode, t("studio.mode.profile"))}</span>{activeMode === mode && <Check className="size-4" />}</DropdownMenuItem>; })}
               </DropdownMenuContent></DropdownMenu>;
             })}
           </div>
@@ -170,9 +185,9 @@ export default function Studio({ initialGrid = false }: { initialGrid?: boolean 
               )
             ) : (
               <>
-                {pageMode === "booking" && <BookingStudioPanel />}
-                <div hidden={pageMode === "booking"}>
-                  <ProfileEditor key={variant} variant={variant} initialGrid={initialGrid} pageMode={pageMode === "booking" ? "profile" : pageMode} onPagesChange={updatePages} />
+                {activeMode === "booking" && <BookingStudioPanel />}
+                <div hidden={activeMode === "booking"}>
+                  <ProfileEditor key={variant} variant={variant} initialGrid={initialGrid} pageMode={activeMode === "booking" ? "profile" : activeMode} onPagesChange={updatePages} />
                 </div>
               </>
             )}

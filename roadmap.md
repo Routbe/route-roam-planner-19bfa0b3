@@ -295,3 +295,16 @@
 - [ ] Productie (Vercel) uitrollen met de code op schemaniveau 0280 (eigenaar)
 - [ ] Verdere intrekking van rout_app-tabelrechten: alleen per tabel na nalezen van de code (wacht op keuze eigenaar)
 - [ ] OWNER_DATABASE_URL verwijderen (wacht op eigenaar)
+
+## Vervolgdirectief 2026-11-15 (schema 0280)
+- [x] F1.1 Studio-keuzelijsten: "Openbaar profiel" → "Hoofdprofiel" (nl/en/fr/de)
+- [x] F1.2 Studio: tabblad Boekingen verbergen als het actieve profiel geen boekingen ondersteunt
+- [ ] F1.3 (geblokkeerd, zie hieronder) /w/<werkruimte>/support en /w/<werkruimte>/ask tonen wanneer ingeschakeld
+- [x] F1.4 Studio Boekingen = formulier ontwerpen (keuze bij meerdere afspraaktypes); /studio/agenda = kalender; knop "Afspraaktypes & beschikbaarheid" → Studio
+- [x] F1.5 /settings in drie delen: Profiel & Account, Beveiliging & Enclave, Sessie & Activiteit
+- [x] F2.2 "Zet eerst je hoofdsleutel op dit toestel": nette kaart met Primair toestel / 3-van-4 herstel
+- [x] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
+- [x] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
+- [ ] db/0281 (Didit-resultaat voor het vinkje) live op Neon: wacht op GO van de eigenaar
+- [ ] F1.3 werkruimte-steunpagina en -vragen: wacht op beslissing eigenaar (wie antwoordt, welke rekening) en een migratie
+- [ ] "Synchroniseer via primair toestel": wacht op een goedgekeurd protocol voor sleuteloverdracht

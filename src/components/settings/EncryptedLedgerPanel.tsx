@@ -49,14 +49,23 @@ function EncryptedLedgerSession() {
   const [busy, setBusy] = useState(false), [error, setError] = useState<string | null>(null);
   const [integrity, setIntegrity] = useState<Awaited<ReturnType<typeof getDisclosureAudit>> | null>(null);
   const active = keys.find((k) => !k.retired_at);
+  const [auditError, setAuditError] = useState(false);
+  /**
+   * The activity ledger and the database-verified disclosure audit load independently:
+   * one failing source no longer hides the other (both keep their own message).
+   */
   async function refresh() {
     const scope = capture();
-    const [k, logs, verified] = await Promise.all([fetchKeys(), list({ data: {} }), audit()]);
+    const [k, logs, verified] = await Promise.allSettled([fetchKeys(), list({ data: {} }), audit()]);
     scope.assertCurrent();
-    setKeys(k as unknown as KeyRow[]); setRows(logs as unknown as LogRow[]); setIntegrity(verified);
-    return logs as unknown as LogRow[];
+    if (k.status === "fulfilled") setKeys(k.value as unknown as KeyRow[]);
+    if (logs.status === "fulfilled") setRows(logs.value as unknown as LogRow[]);
+    setIntegrity(verified.status === "fulfilled" ? verified.value : null);
+    setAuditError(verified.status === "rejected");
+    if (k.status === "rejected" || logs.status === "rejected") setError("Je activiteitenlogboek kon niet laden. Probeer het later opnieuw.");
+    return logs.status === "fulfilled" ? (logs.value as unknown as LogRow[]) : [];
   }
-  useEffect(() => { void refresh().catch(() => setError("Logboek niet beschikbaar. De nieuwe beveiligingsmigraties moeten actief zijn.")); }, []);
+  useEffect(() => { void refresh().catch(() => setError("Je activiteitenlogboek kon niet laden. Probeer het later opnieuw.")); }, []);
   // Leaving the page locks the ledger: the enclave drops its private keys.
   useEffect(() => {
     const workerScope = captureEnclaveScope();
@@ -174,7 +183,8 @@ function EncryptedLedgerSession() {
     {!rows.length && <p className="text-sm text-muted-foreground">Nog geen versleutelde activiteiten.</p>}
     {rows.length >= 50 && <Button variant="outline" disabled={busy} onClick={() => void run(loadMore)}>Meer activiteiten</Button>}
     <h3 className="text-lg font-medium">Auditlog</h3>
-    <p role="status" className="flex items-center gap-2 text-sm">{integrity?.verified ? <><ShieldCheck aria-hidden="true" className="size-5 text-primary" />Cryptografisch geverifieerd</> : "Geen volledige cryptografische verificatie beschikbaar"}</p>
+    <p className="text-sm text-muted-foreground">Wie welke gegevens van je mocht inzien. De database koppelt elke regel aan de vorige met een hash; ROUT controleert die keten bij elke weergave.</p>
+    <p role="status" className="flex items-center gap-2 text-sm">{auditError ? "De auditlog kon niet gecontroleerd worden. Probeer het later opnieuw." : !integrity ? "Auditlog controleren…" : integrity.verified ? <><ShieldCheck aria-hidden="true" className="size-5 text-primary" />Keten gecontroleerd: ongewijzigd</> : integrity.reason === "empty" ? "Nog geen inzage in je gegevens: er is nog niets te controleren." : "Geen volledige cryptografische verificatie beschikbaar"}</p>
     {integrity?.merkleRoot && <code className="block break-all text-xs text-muted-foreground">Merkle root: {integrity.merkleRoot}</code>}
     <ul className="divide-y divide-border">{integrity?.rows.map((row) => <li key={row.id} className="py-2 text-sm">{row.clientId} · {row.scopes.join(", ")}<time className="block text-xs text-muted-foreground">{new Date(row.timestamp).toLocaleString("nl-BE")}</time></li>)}</ul>
   </section>;

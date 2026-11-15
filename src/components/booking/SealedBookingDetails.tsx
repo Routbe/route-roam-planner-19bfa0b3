@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { KeyRound, Loader2, Lock, ShieldAlert } from "lucide-react";
+import { KeyRound, Loader2, Lock, MonitorSmartphone, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { getMyBookingKey, publishMyBookingKey } from "@/lib/booking-engine/booking.functions";
@@ -61,7 +63,8 @@ export function BookingKeyBanner({ state, onRetry, onReplace }: { state: KeyStat
   if (state.kind === "ready") {
     return <div className={`${box} border-border bg-muted/40`}><Lock className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><p>{t("booking.seal.active")}</p></div>;
   }
-  const text = state.kind === "needs_master" ? t("booking.seal.needsMaster") : state.kind === "storage" ? t("booking.seal.storage")
+  if (state.kind === "needs_master") return <MasterKeyRecoveryCard onRetry={onRetry} />;
+  const text = state.kind === "storage" ? t("booking.seal.storage")
     : state.kind === "mismatch" ? t("booking.seal.mismatch") : t("booking.seal.error");
   return (
     <div className={`${box} border-destructive/40 bg-destructive/10`} role="alert">
@@ -78,6 +81,52 @@ export function BookingKeyBanner({ state, onRetry, onReplace }: { state: KeyStat
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Shown when this device has no Master Key. Offers only the protocol's recovery
+ * paths; nothing here creates or moves key material (that stays in the enclave
+ * worker behind the recovery ceremony).
+ */
+function MasterKeyRecoveryCard({ onRetry }: { onRetry: () => void }) {
+  const { t } = useI18n();
+  return (
+    <section aria-labelledby="master-key-recovery-title" className="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted" aria-hidden>
+          <KeyRound className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 space-y-1">
+          <h3 id="master-key-recovery-title" className="text-sm font-semibold">{t("booking.recover.title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("booking.recover.body")}</p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+          <div className="flex items-center gap-2">
+            <MonitorSmartphone className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            <span className="text-sm font-medium">{t("booking.recover.primary")}</span>
+            <Badge variant="secondary" className="ml-auto">{t("booking.recover.soon")}</Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("booking.recover.primaryHint")}</p>
+          <Button size="sm" variant="soft" disabled className="mt-auto w-full sm:w-fit">{t("booking.recover.primary")}</Button>
+        </div>
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+            <span className="text-sm font-medium">{t("booking.recover.shares")}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("booking.recover.sharesHint")}</p>
+          <Button asChild size="sm" className="mt-auto w-full sm:w-fit">
+            <Link to="/studio/account" search={{ tab: "security" }} hash="herstel">{t("booking.recover.shares")}</Link>
+          </Button>
+        </div>
+      </div>
+      <div className="mt-3 flex justify-end">
+        <Button size="sm" variant="ghost" onClick={onRetry}>{t("booking.seal.retry")}</Button>
+      </div>
+    </section>
   );
 }
 

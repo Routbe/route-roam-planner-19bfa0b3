@@ -262,6 +262,7 @@ import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardQrRouteImport } from './routes/_authenticated/dashboard.qr'
 import { Route as AuthenticatedDashboardRoutesRouteImport } from './routes/_authenticated/dashboard.routes'
 import { Route as AuthenticatedStudioAccountRouteImport } from './routes/_authenticated/studio_.account'
+import { Route as AuthenticatedStudioAgendaRouteImport } from './routes/_authenticated/studio_.agenda'
 import { Route as AuthenticatedStudioBookingRouteImport } from './routes/_authenticated/studio_.booking'
 import { Route as ApiBookingsIdRouteImport } from './routes/api.bookings.$id'
 import { Route as ApiAccessVerifyRouteImport } from './routes/api_.access.verify'
@@ -1748,6 +1749,12 @@ const AuthenticatedStudioAccountRoute =
     path: '/studio/account',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedStudioAgendaRoute =
+  AuthenticatedStudioAgendaRouteImport.update({
+    id: '/studio_/agenda',
+    path: '/studio/agenda',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedStudioBookingRoute =
   AuthenticatedStudioBookingRouteImport.update({
     id: '/studio_/booking',
@@ -2993,6 +3000,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/qr': typeof AuthenticatedDashboardQrRoute
   '/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/studio/account': typeof AuthenticatedStudioAccountRoute
+  '/studio/agenda': typeof AuthenticatedStudioAgendaRoute
   '/studio/booking': typeof AuthenticatedStudioBookingRoute
   '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api/access/verify': typeof ApiAccessVerifyRoute
@@ -3413,6 +3421,7 @@ export interface FileRoutesByTo {
   '/dashboard/qr': typeof AuthenticatedDashboardQrRoute
   '/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/studio/account': typeof AuthenticatedStudioAccountRoute
+  '/studio/agenda': typeof AuthenticatedStudioAgendaRoute
   '/studio/booking': typeof AuthenticatedStudioBookingRoute
   '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api/access/verify': typeof ApiAccessVerifyRoute
@@ -3850,6 +3859,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/qr': typeof AuthenticatedDashboardQrRoute
   '/_authenticated/dashboard/routes': typeof AuthenticatedDashboardRoutesRoute
   '/_authenticated/studio_/account': typeof AuthenticatedStudioAccountRoute
+  '/_authenticated/studio_/agenda': typeof AuthenticatedStudioAgendaRoute
   '/_authenticated/studio_/booking': typeof AuthenticatedStudioBookingRoute
   '/api/bookings/$id': typeof ApiBookingsIdRoute
   '/api_/access/verify': typeof ApiAccessVerifyRoute
@@ -4288,6 +4298,7 @@ export interface FileRouteTypes {
     | '/dashboard/qr'
     | '/dashboard/routes'
     | '/studio/account'
+    | '/studio/agenda'
     | '/studio/booking'
     | '/api/bookings/$id'
     | '/api/access/verify'
@@ -4708,6 +4719,7 @@ export interface FileRouteTypes {
     | '/dashboard/qr'
     | '/dashboard/routes'
     | '/studio/account'
+    | '/studio/agenda'
     | '/studio/booking'
     | '/api/bookings/$id'
     | '/api/access/verify'
@@ -5144,6 +5156,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/qr'
     | '/_authenticated/dashboard/routes'
     | '/_authenticated/studio_/account'
+    | '/_authenticated/studio_/agenda'
     | '/_authenticated/studio_/booking'
     | '/api/bookings/$id'
     | '/api_/access/verify'
@@ -7344,6 +7357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioAccountRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/studio_/agenda': {
+      id: '/_authenticated/studio_/agenda'
+      path: '/studio/agenda'
+      fullPath: '/studio/agenda'
+      preLoaderRoute: typeof AuthenticatedStudioAgendaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/studio_/booking': {
       id: '/_authenticated/studio_/booking'
       path: '/studio/booking'
@@ -8780,6 +8800,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardQrRoute: typeof AuthenticatedDashboardQrRoute
   AuthenticatedDashboardRoutesRoute: typeof AuthenticatedDashboardRoutesRoute
   AuthenticatedStudioAccountRoute: typeof AuthenticatedStudioAccountRoute
+  AuthenticatedStudioAgendaRoute: typeof AuthenticatedStudioAgendaRoute
   AuthenticatedStudioBookingRoute: typeof AuthenticatedStudioBookingRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedStudioPersonalFeatureRoute: typeof AuthenticatedStudioPersonalFeatureRoute
@@ -8808,6 +8829,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardQrRoute: AuthenticatedDashboardQrRoute,
   AuthenticatedDashboardRoutesRoute: AuthenticatedDashboardRoutesRoute,
   AuthenticatedStudioAccountRoute: AuthenticatedStudioAccountRoute,
+  AuthenticatedStudioAgendaRoute: AuthenticatedStudioAgendaRoute,
   AuthenticatedStudioBookingRoute: AuthenticatedStudioBookingRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedStudioPersonalFeatureRoute:
