@@ -311,6 +311,6 @@
 
 ## Executive directief 2026-11-15 (0281 GO, werkruimte, badges)
 - [x] 0281 live op Neon via migration-rollout (rout_app EXECUTE, PUBLIC geen)
-- [ ] Blauw vinkje uitsluitend uit Didit-attestatie; betaald/Pro krijgt een aparte kroon-badge (Supporter/Pro)
+- [x] Blauw vinkje uitsluitend uit Didit-attestatie (db/0282 live); betaald/Pro krijgt een aparte kroon-badge (Supporter/Pro)
 - [ ] /w/<werkruimte>/ask: vragen in de browser versleuteld voor de werkruimte; leiders/beheerders lezen en antwoorden
 - [ ] /w/<werkruimte>/support: steun via de betaalinstellingen van de werkruimte, los van de oprichter
