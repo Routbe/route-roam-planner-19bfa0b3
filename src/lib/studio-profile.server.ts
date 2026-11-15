@@ -346,6 +346,16 @@ async function readTrustMeta(profile: Row) {
     const tiers = tiersFor(r ? [{ provider: (r["provider"] as string | null) ?? null, verified: r["verified"] === true }] : []);
     legal = tiers.tier2LegalIdentity;
     human = tiers.tier1RealHuman;
+    // Visitors have no member context, so RLS hides the attestation rows above; db/0281
+    // answers with the two tier booleans of the stored Didit/identity result only.
+    try {
+      const pub = (await sql`select tier_1_real_human, tier_2_legal_identity
+          from public.rout_public_identity_tiers(${id}::uuid)`) as Row[];
+      legal = legal || pub[0]?.["tier_2_legal_identity"] === true;
+      human = human || legal || pub[0]?.["tier_1_real_human"] === true;
+    } catch (error) {
+      console.warn("[public-profile:identity-tiers:skipped]", error);
+    }
     grandfathered = r?.["is_paid"] === true;
     earlyAt = (r?.["early_believer_at"] as string | null) ?? null;
   } catch (error) {

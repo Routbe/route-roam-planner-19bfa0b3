@@ -33041,6 +33041,12 @@
     },
     {
       "schema": "public",
+      "name": "rout_public_identity_tiers",
+      "args": "p_user_id uuid",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_public_identity_tiers(p_user_id uuid)\n RETURNS TABLE(tier_1_real_human boolean, tier_2_legal_identity boolean)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'pg_temp'\nAS $function$\n  with t as (\n    select\n      coalesce(vi.tier_2_legal_identity, false)\n        or (coalesce(iv.is_verified, false) and iv.verification_provider::text in ('didit', 'itsme', 'eid')) as legal,\n      coalesce(vi.tier_1_real_human, false)\n        or (coalesce(iv.is_verified, false) and iv.verification_provider::text in ('w_identity', 'didit', 'itsme', 'eid', 'manual')) as human\n    from public.profiles p\n    left join public.identity_verifications iv on iv.user_id = p.id\n    left join public.verified_identities vi on vi.user_id = p.id\n    where p.id = p_user_id\n      and coalesce(p.verified, false) = true\n  )\n  select t.human or t.legal, t.legal from t\n$function$"
+    },
+    {
+      "schema": "public",
       "name": "rout_public_social_links",
       "args": "p_profile uuid",
       "def": "CREATE OR REPLACE FUNCTION public.rout_public_social_links(p_profile uuid)\n RETURNS TABLE(platform text, username text, follower_count integer, checked_at timestamp with time zone)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'pg_temp'\nAS $function$\n  select s.platform, s.username, s.follower_count, coalesce(s.last_synced_at, s.verified_at)\n    from public.social_links s\n   where s.profile_id = p_profile and s.is_verified = true\n   order by s.position, s.created_at\n   limit 50\n$function$"
