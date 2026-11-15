@@ -119,7 +119,7 @@ function MasterKeyRecoveryCard({ onRetry }: { onRetry: () => void }) {
           </div>
           <p className="text-xs text-muted-foreground">{t("booking.recover.sharesHint")}</p>
           <Button asChild size="sm" className="mt-auto w-full sm:w-fit">
-            <Link to="/studio/account?tab=security#herstel">{t("booking.recover.shares")}</Link>
+            <Link to="/studio/account" search={{ tab: "security" }} hash="herstel">{t("booking.recover.shares")}</Link>
           </Button>
         </div>
       </div>
