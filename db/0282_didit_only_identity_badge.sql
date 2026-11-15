@@ -8,7 +8,7 @@
 --     verified_identities legal tier with a national-id nullifier (written only by a Didit
 --     upgrade; Didit is the sole legal provider in src/lib/identity/identity-tiers.ts);
 --   real_human: any passed unique-human check (pseudonymous, for the privacy shield).
--- Only profiles with a public handle are answered, at most 200 ids per call; provider,
+-- At most 200 ids per call, ids come from server readers only; provider,
 -- names and nullifiers never leave the database. No table, policy or data is changed.
 
 create or replace function public.rout_public_identity_badges(p_user_ids uuid[])
@@ -28,7 +28,6 @@ as $function$
     left join public.identity_verifications iv on iv.user_id = p.id
     left join public.verified_identities vi on vi.user_id = p.id
     where p.id = any (coalesce(p_user_ids[1:200], '{}'::uuid[]))
-      and p.username is not null
   )
   select t.id, t.legal, t.legal or t.human from t
 $function$;

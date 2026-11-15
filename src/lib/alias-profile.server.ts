@@ -190,6 +190,9 @@ export async function readPublicAliasProfile(rawHandle: string) {
   if (!row) return null;
   const { readFediverseProfile } = await import("./fediverse-profile.server");
   const fediverse = await readFediverseProfile(String(row["id"])).catch(() => null);
+  // Visitors have no member context, so the owner's attestation is read through db/0282.
+  const { readPublicIdentity } = await import("./identity/public-identity.server");
+  const ownerIdentity = await readPublicIdentity(String(row["id"]));
   return {
     ...row,
     fediverse,
@@ -197,8 +200,8 @@ export async function readPublicAliasProfile(rawHandle: string) {
     is_pro: hasProfilePro({ verified: row["owner_verified"], is_paid: row["owner_is_paid"], tier: row["owner_tier"] }),
     // Het blauwe vinkje blijft bij het rootprofiel; het aliasprofiel toont het
     // mens-symbool wanneer het gekoppelde account geverifieerd is.
-    // Tier 1 or 2 (or the legacy verified account) unlocks the discrete "Real Human" badge.
-    human_linked: Boolean(row["owner_verified"]) || tiersFor([{ provider: (row["owner_identity_provider"] as string | null) ?? null, verified: row["owner_identity_verified"] === true }]).tier1RealHuman,
+    // Only a passed identity check unlocks the discrete "Real Human" badge; a payment never does.
+    human_linked: ownerIdentity.realHuman || tiersFor([{ provider: (row["owner_identity_provider"] as string | null) ?? null, verified: row["owner_identity_verified"] === true }]).tier1RealHuman,
     verified_at: (row["owner_verified_at"] as string | null) ?? null,
     verified_legal_name: null,
     is_early_believer: false,
