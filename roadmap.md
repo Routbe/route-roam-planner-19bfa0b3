@@ -305,6 +305,12 @@
 - [x] F2.2 "Zet eerst je hoofdsleutel op dit toestel": nette kaart met Primair toestel / 3-van-4 herstel
 - [x] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
 - [x] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
-- [ ] db/0281 (Didit-resultaat voor het vinkje) live op Neon: wacht op GO van de eigenaar
+- [x] db/0281 (Didit-resultaat voor het vinkje) live op Neon (GO 2026-11-15, één transactie, checksum 8622ddfb…)
 - [ ] F1.3 werkruimte-steunpagina en -vragen: wacht op beslissing eigenaar (wie antwoordt, welke rekening) en een migratie
 - [ ] "Synchroniseer via primair toestel": wacht op een goedgekeurd protocol voor sleuteloverdracht
+
+## Executive directief 2026-11-15 (0281 GO, werkruimte, badges)
+- [x] 0281 live op Neon via migration-rollout (rout_app EXECUTE, PUBLIC geen)
+- [ ] Blauw vinkje uitsluitend uit Didit-attestatie; betaald/Pro krijgt een aparte kroon-badge (Supporter/Pro)
+- [ ] /w/<werkruimte>/ask: vragen in de browser versleuteld voor de werkruimte; leiders/beheerders lezen en antwoorden
+- [ ] /w/<werkruimte>/support: steun via de betaalinstellingen van de werkruimte, los van de oprichter
