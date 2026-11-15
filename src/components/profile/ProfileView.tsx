@@ -129,6 +129,8 @@ import { ShareMenu } from "@/components/profile/ShareMenu";
 import { profileText } from "@/lib/profile-i18n";
 
 import { useI18n } from "@/lib/i18n";
+import { showsSupporterCrown } from "@/lib/badge-rules";
+import { SupporterCrownBadge } from "./SupporterCrownBadge";
 import { useServerFn } from "@tanstack/react-start";
 import { recordLinkClickFn } from "@/lib/visits.functions";
 import { initialsFrom } from "@/components/UserAvatar";
@@ -273,8 +275,10 @@ export function ProfileView({
     : null;
   const showBadge = free
     ? Boolean(profile.human_linked) && prefs.humanBadgeVisible
-    : // Blauw vinkje: alleen bij niveau 2 (wettelijke identiteit); oudere betaalde verificaties blijven gelden.
-      Boolean(profile.verified) && profile.legal_identity_verified !== false && prefs.badgeVisible && prefs.badgeType !== "none";
+    : // Blauw vinkje: uitsluitend na een voltooide Didit-check (db/0282). Betaling of Pro geeft het nooit.
+      profile.legal_identity_verified === true && prefs.badgeVisible && prefs.badgeType !== "none";
+  // Supporter/Pro: aparte, discrete kroon — los van identiteit, alleen op de rootpagina.
+  const showSupporter = !free && !publicPath?.startsWith("/w/") && showsSupporterCrown({ isPro: profile.is_pro === true, supporterBadgeVisible: prefs.supporterBadgeVisible });
   /**
    * Beide badges zijn vrij te kiezen: een geverifieerd lid mag het blauwe
    * vinkje (identiteit + land) of het privacy-schild (enkel "echte mens")
@@ -529,6 +533,7 @@ export function ProfileView({
               mutedColor={t.muted}
             />
           )}
+          {showSupporter && <SupporterCrownBadge color={t.muted} />}
           {earlyBeliever && (
             <PioneerBadge
               badgeId={profile.early_believer_id ?? null}

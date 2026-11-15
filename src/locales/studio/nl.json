@@ -1045,5 +1045,8 @@
   "booking.inquiry.status.pending": "Nieuw",
   "booking.inquiry.status.accepted": "Aanvaard",
   "booking.inquiry.status.declined": "Geweigerd",
-  "booking.inquiry.done": "Opgeslagen. ROUT mailt de gast niet; antwoord zelf als je dat wilt."
+  "booking.inquiry.done": "Opgeslagen. ROUT mailt de gast niet; antwoord zelf als je dat wilt.",
+  "studio.editor.diditOnlyHint": "Het blauwe vinkje verschijnt alleen na een voltooide identiteitscheck via Didit. Een betaling of Pro-abonnement geeft het niet.",
+  "studio.editor.supporterBadge": "Supporter-kroon tonen",
+  "studio.editor.supporterHelp": "Een discrete kroon naast je naam toont dat je ROUT steunt. Ze zegt niets over je identiteit."
 }

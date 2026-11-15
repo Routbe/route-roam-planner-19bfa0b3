@@ -1045,5 +1045,8 @@
   "booking.inquiry.status.pending": "Nouvelle",
   "booking.inquiry.status.accepted": "Acceptée",
   "booking.inquiry.status.declined": "Refusée",
-  "booking.inquiry.done": "Enregistré. ROUT n'envoie pas d'e-mail à l'invité ; répondez vous-même si vous le souhaitez."
+  "booking.inquiry.done": "Enregistré. ROUT n'envoie pas d'e-mail à l'invité ; répondez vous-même si vous le souhaitez.",
+  "studio.editor.diditOnlyHint": "La coche bleue n’apparaît qu’après une vérification d’identité réussie via Didit. Un paiement ou un abonnement Pro ne la donne pas.",
+  "studio.editor.supporterBadge": "Afficher la couronne de soutien",
+  "studio.editor.supporterHelp": "Une couronne discrète à côté de votre nom montre que vous soutenez ROUT. Elle ne dit rien de votre identité."
 }

@@ -1045,5 +1045,8 @@
   "booking.inquiry.status.pending": "New",
   "booking.inquiry.status.accepted": "Accepted",
   "booking.inquiry.status.declined": "Declined",
-  "booking.inquiry.done": "Saved. ROUT does not email the guest; reply yourself if you want to."
+  "booking.inquiry.done": "Saved. ROUT does not email the guest; reply yourself if you want to.",
+  "studio.editor.diditOnlyHint": "The blue checkmark appears only after a completed identity check with Didit. A payment or Pro plan does not grant it.",
+  "studio.editor.supporterBadge": "Show supporter crown",
+  "studio.editor.supporterHelp": "A discreet crown next to your name shows that you support ROUT. It says nothing about your identity."
 }

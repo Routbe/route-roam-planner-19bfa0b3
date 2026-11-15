@@ -34,6 +34,8 @@ export type StudioProfileDTO = {
   aliasHandle: string | null;
   isBusiness?: boolean;
   isInfluencer?: boolean;
+  diditVerified?: boolean;
+  isPro?: boolean;
   draftRevision: number;
   publishedRevision: number;
   hasUnpublishedChanges: boolean;

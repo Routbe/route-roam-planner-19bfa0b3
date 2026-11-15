@@ -278,6 +278,9 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
     setOpenBlock(id);
   }, [initialGrid, loading, loadError, blocks, t]);
   const [verified, setVerified] = useState(false);
+  /** Blue mark eligibility (Didit only) and the separate supporter crown, from the server. */
+  const [diditVerified, setDiditVerified] = useState(false);
+  const [isProMember, setIsProMember] = useState(false);
   useEffect(() => {
     if (alias || !verified) return;
     let alive = true;
@@ -350,6 +353,8 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
               ? Boolean(rootData.ownerVerified)
               : Boolean(data.verified) && data.status === "active",
           );
+          setDiditVerified(!alias && (data as { diditVerified?: boolean }).diditVerified === true);
+          setIsProMember(!alias && (data as { isPro?: boolean }).isPro === true);
           setRootUsername(alias ? (rootData.rootUsername ?? null) : (data.username ?? null));
           setSubdomainAlias(rootData.subdomainAlias ?? null);
           setRootStatus(rootData.rootStatus ?? null);
@@ -1897,7 +1902,12 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                   <span className="text-base font-medium">{t("studio.editor.badgeTitle")}</span>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pb-5">
-                  <VerifiedBadgeCard verified={verified} handle={handle || null} />
+                  <VerifiedBadgeCard verified={diditVerified} handle={handle || null} />
+                  {!diditVerified && (
+                    <p className="rounded-xl border border-border bg-background/60 p-3 text-xs text-muted-foreground">
+                      {t("studio.editor.diditOnlyHint")}
+                    </p>
+                  )}
 
                   <section className="space-y-4 acrylic-card p-4 sm:p-5">
                     <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-background/60 p-3">
@@ -1909,11 +1919,25 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                       </div>
                       <Switch
                         aria-label={t("studio.editor.showBadge")}
-                        disabled={!verified}
+                        disabled={!diditVerified}
                         checked={prefs.badgeVisible}
                         onCheckedChange={(v) => setPref("badgeVisible", v)}
                       />
                     </div>
+
+                    {isProMember && (
+                      <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-background/60 p-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">{t("studio.editor.supporterBadge")}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{t("studio.editor.supporterHelp")}</p>
+                        </div>
+                        <Switch
+                          aria-label={t("studio.editor.supporterBadge")}
+                          checked={prefs.supporterBadgeVisible}
+                          onCheckedChange={(v) => setPref("supporterBadgeVisible", v)}
+                        />
+                      </div>
+                    )}
 
                     {/* Mens-badge: staat op je alias-pagina (rout.be/u/…) zodra je
                         hoofdaccount geverifieerd is. Altijd uitschakelbaar. */}

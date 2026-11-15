@@ -149,6 +149,8 @@ export interface ProfileDisplayPrefs {
   badgeVisible: boolean;
   /** Mens-badge op het alias-profiel (`/u/…`) van een geverifieerd lid. */
   humanBadgeVisible: boolean;
+  /** Discrete Supporter/Pro-kroon naast de naam (los van het identiteitsvinkje). */
+  supporterBadgeVisible: boolean;
   /** Badgeverzameling onder de profielkop tonen. */
   badgeShowcaseVisible: boolean;
   /** Openbaar profiel aan/uit. Uit = bezoekers zien geen inhoud. */
@@ -272,6 +274,7 @@ export const DEFAULT_DISPLAY_PREFS: ProfileDisplayPrefs = {
   identityMode: "legal",
   badgeVisible: true,
   humanBadgeVisible: true,
+  supporterBadgeVisible: true,
   badgeShowcaseVisible: true,
   publicProfile: true,
   contextToggle: false,
@@ -477,6 +480,7 @@ export function parseDisplayPrefs(raw: unknown): ProfileDisplayPrefs {
     identityMode: oneOf(r["identityMode"], ["legal", "private"] as const, "legal"),
     badgeVisible: r["badgeVisible"] === undefined ? true : Boolean(r["badgeVisible"]),
     humanBadgeVisible: r["humanBadgeVisible"] === undefined ? true : Boolean(r["humanBadgeVisible"]),
+    supporterBadgeVisible: r["supporterBadgeVisible"] === undefined ? true : Boolean(r["supporterBadgeVisible"]),
     badgeShowcaseVisible:
       r["badgeShowcaseVisible"] === undefined ? true : Boolean(r["badgeShowcaseVisible"]),
     publicProfile: r["publicProfile"] === undefined ? true : Boolean(r["publicProfile"]),
