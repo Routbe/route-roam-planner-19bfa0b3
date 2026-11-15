@@ -1,0 +1,23 @@
+{
+  "source": "https://github.com/Routbe/route-roam-planner-83a5fe29",
+  "commit": "c7162b1",
+  "importedAt": "2026-11-15",
+  "kind": "source-repository",
+  "permissionConfirmed": true,
+  "credentialsCopied": false,
+  "databaseMigrationsApplied": false,
+  "sourceWebsiteComparison": "Not applicable: repository source imported, not GitHub website UI.",
+  "excluded": [".git", "node_modules", ".lovable/project.json (kept this project's own)"],
+  "packageChanges": ["@lovable.dev/vite-tanstack-config 2.27.1 -> 2.27.2 to match the sandbox template"],
+  "checks": [
+    {"route": "/", "layout": "desktop", "viewport": {"width": 1280, "height": 1800}, "scrollContainer": "document.scrollingElement", "trigger": "home render + wheel scroll to bottom", "observed": {"scrollHeight": 23724, "errors": []}, "status": "passed", "screenshots": ["/tmp/browser/import/shots/desktop_top.png", "/tmp/browser/import/shots/desktop_bottom.png"]},
+    {"route": "/", "layout": "phone", "viewport": {"width": 390, "height": 844}, "scrollContainer": "document.scrollingElement", "trigger": "home render + wheel scroll to bottom", "observed": {"scrollHeight": 11664, "errors": []}, "status": "passed"},
+    {"route": "/", "layout": "desktop", "trigger": "Open menu", "expected": "Platform sheet with Tools and Infrastructure", "observed": "Platform | TOOLS | QR generator | Profile studio | Calendar and bookings | Batch generator | Dynamic links | INFRASTRUCTURE ...", "status": "passed"},
+    {"route": "/", "layout": "desktop", "trigger": "Escape closes menu", "status": "passed"},
+    {"route": "/", "layout": "phone", "trigger": "Open menu", "observed": "same Platform sheet contents", "status": "passed"},
+    {"route": "/", "layout": "phone", "trigger": "Escape closes menu", "status": "passed"},
+    {"route": "/pricing, /about, /docs, /login, /explore", "layout": "desktop+phone", "observed": "HTTP 200, no page errors", "status": "passed"},
+    {"route": "signed-in areas", "trigger": "sign-in / dashboard", "status": "blocked", "reason": "No DATABASE_URL or auth secrets in this project; dev log reports '[auth] no runtime database configured.'"},
+    {"route": "n/a", "trigger": "vitest run --maxWorkers=2", "observed": "2307 tests passed, 0 failures before the 560s time limit; suite not fully completed", "status": "partial"}
+  ]
+}
