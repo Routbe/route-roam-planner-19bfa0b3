@@ -65,38 +65,31 @@ import { useLanguagePreference } from "@/hooks/useLanguagePreference";
 import { i18n as trI18n } from "@/lib/i18n";
 import { InterfaceThemePicker } from "@/components/settings/InterfaceThemeSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ACCOUNT_SECTIONS, SETTINGS_PORTALS, resolveSettingsView, settingsHref, type SettingsView } from "@/lib/settings-portal";
 
-type SettingsTab = "profile" | "security" | "identities" | "payments" | "data" | "status";
-
-const SETTINGS_TABS: SettingsTab[] = [
-  "profile",
-  "security",
-  "identities",
-  "payments",
-  "data",
-  "status",
-];
-
-function parseTab(value: unknown): SettingsTab {
-  return SETTINGS_TABS.includes(value as SettingsTab) ? (value as SettingsTab) : "profile";
-}
-
-/** /settings — profile, security, linked identities and account control in four tabs. */
+/** /studio/account — three portals: Profiel & Account, Beveiliging & Enclave, Sessie & Activiteit. */
 export default function AccountSettings() {
   const { user, loading, signOut } = useAuth();
   const nav = useNavigate();
   const { t } = useI18n();
   const { language, save: saveLanguage } = useLanguagePreference();
-  const search = useSearch({ strict: false }) as { tab?: string };
-  const tab = parseTab(search.tab);
+  const search = useSearch({ strict: false }) as { tab?: string; section?: string };
+  const view = resolveSettingsView(search.tab, search.section);
 
   useEffect(() => {
     document
       .querySelector('[data-sticky-tabs] [role="tab"][data-state="active"]')
       ?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [tab]);
-  const setTab = (next: SettingsTab) => {
-    nav(`/studio/account?tab=${next}`, { replace: true });
+  }, [view.portal]);
+  // Deep links such as #herstel (Master Key recovery) scroll once the portal has rendered.
+  useEffect(() => {
+    const id = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
+    if (!id || loading || !user) return;
+    const frame = window.requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [view.portal, loading, user]);
+  const setView = (next: SettingsView) => {
+    nav(settingsHref(next), { replace: true });
   };
 
   const [displayName, setDisplayName] = useState("");
@@ -301,158 +294,207 @@ export default function AccountSettings() {
       description={`Signed in as ${user.email}`}
       crumbs={[{ label: "Instellingen" }]}
     >
-      <Tabs value={tab} onValueChange={(v) => setTab(parseTab(v))} className="account-settings-surface mt-4">
+      <Tabs value={view.portal} onValueChange={(v) => setView(resolveSettingsView(v, view.section))} className="account-settings-surface mt-4">
         <TabsList data-sticky-tabs className="sticky top-20 z-30 flex h-auto w-full flex-nowrap justify-start gap-1 overflow-x-auto whitespace-nowrap rounded-lg p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsTrigger className="h-9 shrink-0 px-3" value="profile">
-            {t("settings.tabs.profile")}
-          </TabsTrigger>
-          <TabsTrigger className="h-9 shrink-0 px-3" value="security">
-            {t("settings.tabs.security")}
-          </TabsTrigger>
-          <TabsTrigger className="h-9 shrink-0 px-3" value="identities">
-            {t("settings.tabs.identities")}
-          </TabsTrigger>
-          <TabsTrigger className="h-9 shrink-0 px-3" value="payments">
-            Betalingen
-          </TabsTrigger>
-          <TabsTrigger className="h-9 shrink-0 px-3" value="data">
-            Data &amp; domein
-          </TabsTrigger>
-          <TabsTrigger className="h-9 shrink-0 px-3" value="status">
-            {t("settings.tabs.status")}
-          </TabsTrigger>
+          {SETTINGS_PORTALS.map((id) => (
+            <TabsTrigger key={id} className="h-9 shrink-0 px-3" value={id}>
+              {t(`settings.portal.${id}`)}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        {/* Betalingen & facturen */}
-        <TabsContent value="payments" className="space-y-4">
-          <DocHelpLink to="/support/account/billing" />
-          <section className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <div>
-              <h2 className="text-lg font-medium">Betalingen &amp; facturen</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Download je facturen als PDF. Vragen over een betaling? Mail{" "}
-                <a className="underline" href="mailto:billing@rout.be">
-                  billing@rout.be
-                </a>{" "}
-                of gebruik het{" "}
-                <Link to="/contact" className="underline">
-                  contactformulier
-                </Link>
-                .
+        {/* Portal 1 — Profiel & Account */}
+        <TabsContent value="account" className="space-y-4">
+          <Tabs value={view.section} onValueChange={(v) => setView(resolveSettingsView("account", v))} className="space-y-4">
+            <TabsList aria-label={t("settings.section.label")} className="flex h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+              {ACCOUNT_SECTIONS.map((id) => (
+                <TabsTrigger key={id} value={id} className="h-11 rounded-full border border-border px-3 text-xs data-[state=active]:border-foreground">
+                  {t(`settings.section.${id}`)}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            <TabsContent value="profile" className="space-y-4">
+            <DocHelpLink to="/info/profiles" />
+            <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <h2 className="flex items-center gap-2 text-lg font-medium">
+                <UserIcon className="h-4 w-4" /> Profile
+              </h2>
+              <div>
+                <p className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Profielfoto
+                </p>
+                <AvatarUpload
+                  value={avatarUrl}
+                  name={displayName || user.email}
+                  onChange={setAvatarUrl}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="account-display-name" className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Weergavenaam
+                </label>
+                <Input
+                  id="account-display-name"
+                  value={displayName}
+                  placeholder="Jona Zeno"
+                  maxLength={80}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="input-field h-11 rounded-xl"
+                />
+              </div>
+              <Button
+                onClick={saveProfile}
+                disabled={savingProfile}
+                className="h-11 w-full sm:w-auto"
+              >
+                Profiel opslaan
+              </Button>
+            </section>
+
+            <PhoneVerification />
+
+            <IdentityVerification />
+
+
+            <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <h2 className="flex items-center gap-2 text-lg font-medium">
+                <Languages className="h-4 w-4" /> {t("settings.language.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">{t("settings.language.body")}</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {LOCALES.map((code) => {
+                  const active = language === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={async () => {
+                        const { error } = await saveLanguage(code);
+                        if (error) toast.error(error.message);
+                        else toast.success(t("settings.language.saved"));
+                      }}
+                      aria-pressed={active}
+                      className={`flex h-11 items-center justify-between rounded-xl border px-3 text-sm transition-colors ${
+                        active
+                          ? "border-foreground bg-muted/60 text-foreground"
+                          : "border-border text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                      }`}
+                    >
+                      <span>{LOCALE_LABELS[code]}</span>
+                      <span className="text-xs uppercase tracking-wide">{code}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+            <section id="weergave" aria-labelledby="weergave-title" className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 id="weergave-title" className="flex items-center gap-2 text-lg font-medium"><Monitor className="size-4" /> Weergave</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Kies hoe je werkruimte eruitziet. Je publieke profiel en QR-ontwerpen veranderen niet.</p>
+                </div>
+                <ThemeToggle />
+              </div>
+              <InterfaceThemePicker />
+            </section>
+            </TabsContent>
+
+            <TabsContent value="identities" className="space-y-4">
+            <DocHelpLink to="/support/account/linked-identities" />
+            <IdentitiesPanel />
+            <IdentityLinksPanel />
+            </TabsContent>
+
+            <TabsContent value="payments" className="space-y-4">
+            <DocHelpLink to="/support/account/billing" />
+            <section className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <div>
+                <h2 className="text-lg font-medium">Betalingen &amp; facturen</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Download je facturen als PDF. Vragen over een betaling? Mail{" "}
+                  <a className="underline" href="mailto:billing@rout.be">
+                    billing@rout.be
+                  </a>{" "}
+                  of gebruik het{" "}
+                  <Link to="/contact" className="underline">
+                    contactformulier
+                  </Link>
+                  .
+                </p>
+              </div>
+              <BillingHistoryPanel />
+              <div className="h-px bg-border" />
+              <BunqConnectionPanel />
+            </section>
+            </TabsContent>
+
+            <TabsContent value="data" className="space-y-4">
+            <DocHelpLink to="/support/account/data-domains" />
+            <CardActivationCard />
+
+            <section className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <h2 className="text-lg font-medium">Data &amp; domein</h2>
+              <DataExportCard />
+              <div className="h-px bg-border" />
+              <CustomDomainPanel />
+              <div className="h-px bg-border" />
+              <DomainClaimPanel />
+            </section>
+            </TabsContent>
+
+            <TabsContent value="control" className="space-y-4">
+            <DocHelpLink to="/support/account/delete-account" />
+            <FreezeAccountPanel />
+
+            <MergeAccountWizard />
+
+            <ConvertToWorkspaceWizard />
+
+            <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+              <h2 className="text-lg font-medium">{t("accountData.title")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {t("accountData.body")}
               </p>
-            </div>
-            <BillingHistoryPanel />
-            <div className="h-px bg-border" />
-            <BunqConnectionPanel />
-          </section>
+              <Button asChild variant="outline" className="h-11 w-full sm:w-auto">
+                <Link to="/my-data">{t("accountData.open")}</Link>
+              </Button>
+            </section>
+
+            <section className="space-y-4 rounded-2xl border border-red-500/30 bg-red-500/5 p-4 sm:p-5">
+              <h2 className="flex items-center gap-2 text-lg font-medium text-red-600">
+                <AlertTriangle className="h-4 w-4" /> {t("accountData.dangerZone")}
+              </h2>
+
+              <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t("accountData.downloadTitle")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("accountData.downloadBody")}
+                  </p>
+                </div>
+                <Button
+                  onClick={exportData}
+                  disabled={exporting}
+                  variant="outline"
+                  className="gap-1.5"
+                >
+                  <Download className="h-4 w-4" /> {t("accountData.downloadButton")}
+                </Button>
+              </div>
+
+              <DeleteAccountPanel />
+              <DocHelpLink to="/support/account/delete-account">{t("accountData.deleteHelp")}</DocHelpLink>
+            </section>
+
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
-        {/* Data & domein */}
-        <TabsContent value="data" className="space-y-4">
-          <DocHelpLink to="/support/account/data-domains" />
-          <CardActivationCard />
-
-          <section className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="text-lg font-medium">Data &amp; domein</h2>
-            <DataExportCard />
-            <div className="h-px bg-border" />
-            <CustomDomainPanel />
-            <div className="h-px bg-border" />
-            <DomainClaimPanel />
-          </section>
-        </TabsContent>
-
-        {/* Tab 1 — Profile */}
-        <TabsContent value="profile" className="space-y-4">
-          <DocHelpLink to="/info/profiles" />
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-lg font-medium">
-              <UserIcon className="h-4 w-4" /> Profile
-            </h2>
-            <div>
-              <p className="mb-1 block text-xs font-medium text-muted-foreground">
-                Profielfoto
-              </p>
-              <AvatarUpload
-                value={avatarUrl}
-                name={displayName || user.email}
-                onChange={setAvatarUrl}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="account-display-name" className="mb-1 block text-xs font-medium text-muted-foreground">
-                Weergavenaam
-              </label>
-              <Input
-                id="account-display-name"
-                value={displayName}
-                placeholder="Jona Zeno"
-                maxLength={80}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="input-field h-11 rounded-xl"
-              />
-            </div>
-            <Button
-              onClick={saveProfile}
-              disabled={savingProfile}
-              className="h-11 w-full sm:w-auto"
-            >
-              Profiel opslaan
-            </Button>
-          </section>
-
-          <PhoneVerification />
-
-          <IdentityVerification />
-
-
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-lg font-medium">
-              <Languages className="h-4 w-4" /> {t("settings.language.title")}
-            </h2>
-            <p className="text-sm text-muted-foreground">{t("settings.language.body")}</p>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {LOCALES.map((code) => {
-                const active = language === code;
-                return (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={async () => {
-                      const { error } = await saveLanguage(code);
-                      if (error) toast.error(error.message);
-                      else toast.success(t("settings.language.saved"));
-                    }}
-                    aria-pressed={active}
-                    className={`flex h-11 items-center justify-between rounded-xl border px-3 text-sm transition-colors ${
-                      active
-                        ? "border-foreground bg-muted/60 text-foreground"
-                        : "border-border text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                    }`}
-                  >
-                    <span>{LOCALE_LABELS[code]}</span>
-                    <span className="text-xs uppercase tracking-wide">{code}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        </TabsContent>
-
-        {/* Tab 2 — Account & security */}
+        {/* Portal 2 — Beveiliging & Enclave */}
         <TabsContent value="security" className="space-y-4">
           <DocHelpLink to="/support/account/security" />
-          <section id="weergave" aria-labelledby="weergave-title" className="space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 id="weergave-title" className="flex items-center gap-2 text-lg font-medium"><Monitor className="size-4" /> Weergave</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Kies hoe je werkruimte eruitziet. Je publieke profiel en QR-ontwerpen veranderen niet.</p>
-              </div>
-              <ThemeToggle />
-            </div>
-            <InterfaceThemePicker />
-          </section>
           <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
             <h2 className="flex items-center gap-2 text-lg font-medium">
               <Mail className="h-4 w-4" /> E-mail address
@@ -478,7 +520,7 @@ export default function AccountSettings() {
           </section>
 
           <PasskeysPanel />
-          <RecoveryCeremonyPanel />
+          <div id="herstel" className="scroll-mt-28"><RecoveryCeremonyPanel /></div>
           <ConnectedAppsPanel />
 
           <ConnectedAccounts />
@@ -528,6 +570,21 @@ export default function AccountSettings() {
             </div>
           </section>
 
+
+          <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <h2 className="text-lg font-medium">Ontwikkelaarstoegang</h2>
+            <p className="text-sm text-muted-foreground">
+              Manage apps, API keys, webhooks and MCP connectors in the Developer Console.
+            </p>
+            <Button asChild variant="outline" className="h-11 w-full sm:w-auto">
+              <a href="/console" target="_blank" rel="noopener noreferrer">Open Developer Console</a>
+            </Button>
+          </section>
+        </TabsContent>
+
+        {/* Portal 3 — Sessie & Activiteit */}
+        <TabsContent value="session" className="space-y-4">
+          <DocHelpLink to="/support/account/security" />
           <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
             <h2 className="flex items-center gap-2 text-lg font-medium">
               <Monitor className="h-4 w-4" /> Actieve sessies
@@ -546,71 +603,7 @@ export default function AccountSettings() {
               Overal elders uitloggen
             </Button>
           </section>
-
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="text-lg font-medium">Ontwikkelaarstoegang</h2>
-            <p className="text-sm text-muted-foreground">
-              Manage apps, API keys, webhooks and MCP connectors in the Developer Console.
-            </p>
-            <Button asChild variant="outline" className="h-11 w-full sm:w-auto">
-              <a href="/console" target="_blank" rel="noopener noreferrer">Open Developer Console</a>
-            </Button>
-          </section>
-        </TabsContent>
-
-        {/* Tab 3 — Linked identities */}
-        <TabsContent value="identities" className="space-y-4">
-          <DocHelpLink to="/support/account/linked-identities" />
-          <IdentitiesPanel />
-          <IdentityLinksPanel />
-        </TabsContent>
-
-        {/* Tab 4 — Account status & control */}
-        <TabsContent value="status" className="space-y-4">
-          <DocHelpLink to="/support/account/delete-account" />
           <EncryptedLedgerPanel />
-          <FreezeAccountPanel />
-
-          <MergeAccountWizard />
-
-          <ConvertToWorkspaceWizard />
-
-          <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <h2 className="text-lg font-medium">{t("accountData.title")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t("accountData.body")}
-            </p>
-            <Button asChild variant="outline" className="h-11 w-full sm:w-auto">
-              <Link to="/my-data">{t("accountData.open")}</Link>
-            </Button>
-          </section>
-
-          <section className="space-y-4 rounded-2xl border border-red-500/30 bg-red-500/5 p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-lg font-medium text-red-600">
-              <AlertTriangle className="h-4 w-4" /> {t("accountData.dangerZone")}
-            </h2>
-
-            <div className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-foreground">{t("accountData.downloadTitle")}</p>
-                <p className="text-xs text-muted-foreground">
-                  {t("accountData.downloadBody")}
-                </p>
-              </div>
-              <Button
-                onClick={exportData}
-                disabled={exporting}
-                variant="outline"
-                className="gap-1.5"
-              >
-                <Download className="h-4 w-4" /> {t("accountData.downloadButton")}
-              </Button>
-            </div>
-
-            <DeleteAccountPanel />
-            <DocHelpLink to="/support/account/delete-account">{t("accountData.deleteHelp")}</DocHelpLink>
-          </section>
-
           <Button
             variant="outline"
             className="h-11 w-full gap-2 text-destructive sm:w-auto"
