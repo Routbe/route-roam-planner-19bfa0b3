@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowUp, CalendarClock, Check, Copy, Link2, Loader2, RefreshCw, Trash2, X } from "lucide-react";
+import { ArrowUp, CalendarClock, CalendarDays, Check, Copy, Link2, Loader2, RefreshCw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
+import { Link } from "@/lib/router-compat";
 import {
   actOnBooking, addBookingCalendar, getBookingStudio, removeBookingCalendar, saveAvailabilityRules,
   saveBookingEventType, setBookingEventTypeActive, syncBookingCalendar, addAvailabilityException, removeAvailabilityException,
@@ -41,7 +42,10 @@ function relative(iso: string | null, locale: string) {
 import { PrivacyBadge } from "@/components/PrivacyBadge";
 import { i18n as trI18n } from "@/lib/i18n";
 
-/** Booking management, rendered inside the Studio page switcher (Inhoud | Vormgeving | Statistieken). */
+/**
+ * Studio side of bookings: designing and configuring booking forms (event types,
+ * intake questions, availability, look). Day-to-day appointments live in the Agenda.
+ */
 export function BookingStudioPanel() {
   const { t } = useI18n();
   const q = useStudio();
@@ -51,47 +55,71 @@ export function BookingStudioPanel() {
   const confirmed = data.bookings.filter((b) => b.status === "confirmed").length;
   const requested = data.bookings.filter((b) => b.status === "requested").length;
   return (
-    <Tabs defaultValue="content" className="space-y-5">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="content">Inhoud</TabsTrigger>
-        <TabsTrigger value="design">Vormgeving</TabsTrigger>
-        <TabsTrigger value="stats">Statistieken</TabsTrigger>
-      </TabsList>
-      <TabsContent value="content">
-        <Tabs defaultValue="requests" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
-              <TabsTrigger value="requests">{t("booking.tab.requests")}</TabsTrigger>
-              <TabsTrigger value="types">{t("booking.tab.types")}</TabsTrigger>
-              <TabsTrigger value="availability">{t("booking.tab.availability")}</TabsTrigger>
-              <TabsTrigger value="calendars">{t("booking.tab.calendars")}</TabsTrigger>
-            </TabsList>
-            <PrivacyBadge kind="zk-pii" />
+    <div className="space-y-5">
+      <Panel>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold">{t("booking.studio.agenda.title")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("booking.studio.agenda.body")}</p>
           </div>
-          <TabsContent value="requests"><Requests data={data} /></TabsContent>
-          <TabsContent value="types"><Types data={data} /></TabsContent>
-          <TabsContent value="availability"><Availability data={data} /></TabsContent>
-          <TabsContent value="calendars"><Calendars data={data} /></TabsContent>
-        </Tabs>
-      </TabsContent>
-      <TabsContent value="design">
-        <Panel><p className="text-sm text-muted-foreground">Je boekingspagina neemt het thema, de achtergrond en de knopstijl van je hoofdprofiel over, zodat bezoekers één herkenbare stijl zien. Pas die aan via Vormgeving op je hoofdprofiel.</p></Panel>
-      </TabsContent>
-      <TabsContent value="stats">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            ["Boekingstypes", data.eventTypes.length],
-            ["Aanvragen", requested],
-            ["Bevestigd", confirmed],
-            ["Totaal", data.bookings.length],
-          ].map(([label, n]) => (
-            <div key={label} className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">{n}</p>
-            </div>
-          ))}
+          <Button asChild variant="soft" size="sm" className="shrink-0">
+            <Link to="/agenda"><CalendarDays className="h-4 w-4" />{t("booking.studio.agenda.open")}</Link>
+          </Button>
         </div>
-      </TabsContent>
+      </Panel>
+      <Tabs defaultValue="forms" className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
+            <TabsTrigger value="forms">{t("booking.studio.tab.forms")}</TabsTrigger>
+            <TabsTrigger value="availability">{t("booking.tab.availability")}</TabsTrigger>
+            <TabsTrigger value="design">{t("booking.studio.tab.design")}</TabsTrigger>
+            <TabsTrigger value="stats">{t("booking.studio.tab.stats")}</TabsTrigger>
+          </TabsList>
+          <PrivacyBadge kind="zk-pii" />
+        </div>
+        <TabsContent value="forms"><Types data={data} /></TabsContent>
+        <TabsContent value="availability"><Availability data={data} /></TabsContent>
+        <TabsContent value="design">
+          <Panel><p className="text-sm text-muted-foreground">{t("booking.studio.design")}</p></Panel>
+        </TabsContent>
+        <TabsContent value="stats">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {([
+              ["booking.studio.stat.types", data.eventTypes.length],
+              ["booking.studio.stat.requested", requested],
+              ["booking.studio.stat.confirmed", confirmed],
+              ["booking.studio.stat.total", data.bookings.length],
+            ] as const).map(([label, n]) => (
+              <div key={label} className="rounded-2xl border border-border bg-card p-4">
+                <p className="text-xs text-muted-foreground">{t(label)}</p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums">{n}</p>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+/** Agenda side of bookings: the operational dashboard for appointments and synced calendars. */
+export function BookingAgendaPanel() {
+  const { t } = useI18n();
+  const q = useStudio();
+  if (q.isLoading || !q.data) return <div className="flex justify-center py-10" role="status" aria-label={t("booking.agenda.loading")}><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
+  if (!q.data.ready) return <p className="py-6 text-sm text-muted-foreground">{t("booking.err.generic")}</p>;
+  const data = q.data;
+  return (
+    <Tabs defaultValue="requests" className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
+          <TabsTrigger value="requests">{t("booking.tab.requests")}</TabsTrigger>
+          <TabsTrigger value="calendars">{t("booking.tab.calendars")}</TabsTrigger>
+        </TabsList>
+        <PrivacyBadge kind="zk-pii" />
+      </div>
+      <TabsContent value="requests"><Requests data={data} /></TabsContent>
+      <TabsContent value="calendars"><Calendars data={data} /></TabsContent>
     </Tabs>
   );
 }
@@ -274,6 +302,15 @@ function Types({ data }: { data: Studio }) {
         <EventTypeForm data={data} draft={draft} setDraft={setDraft} onDone={() => setDraft(null)} />
       ) : (
         <Button onClick={() => setDraft(toDraft(null, data.userId))}><CalendarClock className="h-4 w-4" />{t("booking.type.new")}</Button>
+      )}
+      {data.eventTypes.length > 1 && (
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-form-pick">{t("booking.studio.pick")}</Label>
+          <Select value={draft?.id ?? ""} onValueChange={(id) => { const e = data.eventTypes.find((x) => x.id === id); if (e) setDraft(toDraft(e, data.userId)); }}>
+            <SelectTrigger id="booking-form-pick" className="w-full sm:max-w-sm"><SelectValue placeholder={t("booking.studio.pickPlaceholder")} /></SelectTrigger>
+            <SelectContent>{data.eventTypes.map((e) => <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
       )}
       {data.eventTypes.length === 0 && !draft && <Panel><p className="text-sm text-muted-foreground">{t("booking.type.empty")}</p></Panel>}
       {data.eventTypes.map((e) => (
