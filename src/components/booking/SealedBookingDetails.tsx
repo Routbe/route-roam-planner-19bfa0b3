@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { KeyRound, Loader2, Lock, MonitorSmartphone, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "@/lib/router-compat";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { getMyBookingKey, publishMyBookingKey } from "@/lib/booking-engine/booking.functions";
