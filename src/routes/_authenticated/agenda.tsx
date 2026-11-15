@@ -19,7 +19,8 @@ import {
   type CalendarMode,
   type RoutCalendar,
 } from "@/lib/calendars.functions";
-import { i18n as trI18n } from "@/lib/i18n";
+import { i18n as trI18n, useI18n } from "@/lib/i18n";
+import { BookingAgendaPanel } from "@/components/imported-pages/BookingStudio";
 
 const TITLE = "Agenda & Boekingen";
 const DESC = "Beheer je gekoppelde en soevereine agenda's en boekingspagina's.";
@@ -45,6 +46,7 @@ function publicUrl(c: RoutCalendar, handle: string | null): string {
 }
 
 function AgendaPage() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const handle = (user as { username?: string | null } | null)?.username ?? null;
   const qc = useQueryClient();
@@ -64,6 +66,10 @@ function AgendaPage() {
   return (
     <AppLayout title={TITLE} description={DESC} width="wide"
       actions={<Button asChild variant="outline" size="sm"><Link to="/studio/booking">Afspraaktypes & beschikbaarheid</Link></Button>}>
+      <section data-tour="agenda-appointments" aria-labelledby="agenda-appointments-title" className="mb-4 rounded-2xl border border-border bg-card p-5">
+        <h2 id="agenda-appointments-title" className="mb-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("booking.agenda.title")}</h2>
+        <BookingAgendaPanel />
+      </section>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section data-tour="agenda-list" className="rounded-2xl border border-border bg-card p-5">
           <h2 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Je agenda's</h2>

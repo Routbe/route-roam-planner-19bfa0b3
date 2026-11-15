@@ -83,6 +83,13 @@ export default function Studio({ initialGrid = false }: { initialGrid?: boolean 
     setVariant(saved);
     try { window.localStorage.setItem(variantKey, saved); } catch { /* negeren */ }
   }, [accountVariant.data, variantKey]);
+  // /studio/booking (Agenda → "Afspraaktypes & beschikbaarheid") always opens the main profile,
+  // the only profile that carries bookings. Declared after the stored-choice effects so it wins.
+  useEffect(() => {
+    if (searchPage !== "booking") return;
+    variantChosen.current = true;
+    setVariant("verified");
+  }, [searchPage, variantKey]);
   const chooseVariant = useCallback((next: ProfileVariant) => {
     variantChosen.current = true;
     setVariant(next);
