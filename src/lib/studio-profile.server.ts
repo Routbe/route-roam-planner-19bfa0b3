@@ -36,6 +36,10 @@ export type StudioProfile = {
   isBusiness: boolean;
   /** Goedgekeurde influencerverificatie (roze badge). */
   isInfluencer: boolean;
+  /** Completed Didit attestation: the only source of the blue identity mark (db/0282). */
+  diditVerified: boolean;
+  /** Paying/Pro member: gets the separate supporter crown, never the identity mark. */
+  isPro: boolean;
 };
 
 type Row = Record<string, unknown>;
@@ -62,6 +66,8 @@ function toStudioProfile(row: Row): StudioProfile {
     aliasHandle: (row["alias_handle"] as string | null) ?? null,
     isBusiness: row["is_business"] === true,
     isInfluencer: row["is_influencer"] === true,
+    diditVerified: row["didit_verified"] === true,
+    isPro: hasProfilePro(row),
   };
 }
 
@@ -69,6 +75,7 @@ export async function readStudioProfile(userId: string): Promise<StudioProfile |
   const rows = (await sql`
     select username, display_name, tagline, avatar_url, favicon_url, theme, card_style,
            blocks, verified, status, verified_legal_name,
+           coalesce(profiles.is_paid, false) as is_paid, profiles.tier::text as tier,
            -- Tolerant: werkt ook wanneer migratie 18 nog niet is uitgevoerd.
            profiles.display_prefs as display_prefs,
            profiles.subdomain_alias::text as subdomain_alias,
@@ -90,6 +97,8 @@ export async function readStudioProfile(userId: string): Promise<StudioProfile |
   } catch {
     row["alias_handle"] = null;
   }
+  const { readPublicIdentity } = await import("./identity/public-identity.server");
+  row["didit_verified"] = (await readPublicIdentity(userId)).diditVerified;
   return toStudioProfile(row);
 }
 
@@ -318,46 +327,35 @@ export async function readPublicProfile(rawHandle: string) {
     console.warn("[public-profile:social-links:skipped]", username, error);
   }
   const trust = await readTrustMeta(profile);
+  // Identity names travel only with the Didit-backed mark; a paid or admin flag is not enough.
+  if (!trust.legal_identity_verified) {
+    profile["verified_legal_name"] = null;
+    profile["business_name"] = null;
+    profile["country_code"] = null;
+  }
   const { readFediverseProfile } = await import("./fediverse-profile.server");
   const fediverse = await readFediverseProfile(String(profile["id"])).catch(() => null);
   return { ...profile, ...trust, is_pro: hasProfilePro(profile), social_links: socialLinks, fediverse } as Row;
 }
 
 /**
- * Identity tier + genesis metadata for a public root profile. The blue mark needs
- * tier 2 (legal identity); members who paid the legacy verification keep theirs.
+ * Identity tier + genesis metadata for a public root profile. The blue mark needs a
+ * completed Didit attestation (db/0282); payment, Pro or legacy is_paid never grant it.
  */
 async function readTrustMeta(profile: Row) {
   const id = profile["id"] as string;
   let legal = false;
   let human = false;
-  let grandfathered = false;
   let earlyAt: string | null = null;
   try {
-    const { tiersFor } = await import("./identity/identity-tiers");
-    const rows = (await sql`
-      select iv.verification_provider::text as provider, coalesce(iv.is_verified, false) as verified,
-             coalesce(p.is_paid, false) as is_paid,
-             p.early_believer_at
-        from public.profiles p
-        left join public.identity_verifications iv on iv.user_id = p.id
-       where p.id = ${id} limit 1`) as Row[];
-    const r = rows[0];
-    const tiers = tiersFor(r ? [{ provider: (r["provider"] as string | null) ?? null, verified: r["verified"] === true }] : []);
-    legal = tiers.tier2LegalIdentity;
-    human = tiers.tier1RealHuman;
-    // Visitors have no member context, so RLS hides the attestation rows above; db/0281
-    // answers with the two tier booleans of the stored Didit/identity result only.
-    try {
-      const pub = (await sql`select tier_1_real_human, tier_2_legal_identity
-          from public.rout_public_identity_tiers(${id}::uuid)`) as Row[];
-      legal = legal || pub[0]?.["tier_2_legal_identity"] === true;
-      human = human || legal || pub[0]?.["tier_1_real_human"] === true;
-    } catch (error) {
-      console.warn("[public-profile:identity-tiers:skipped]", error);
-    }
-    grandfathered = r?.["is_paid"] === true;
-    earlyAt = (r?.["early_believer_at"] as string | null) ?? null;
+    // Visitors have no member context, so RLS hides the attestation rows; db/0282 answers
+    // with two booleans only, independent of profiles.verified and is_paid.
+    const { readPublicIdentity } = await import("./identity/public-identity.server");
+    const pub = await readPublicIdentity(id);
+    legal = pub.diditVerified;
+    human = pub.realHuman || legal;
+    const rows = (await sql`select p.early_believer_at from public.profiles p where p.id = ${id} limit 1`) as Row[];
+    earlyAt = (rows[0]?.["early_believer_at"] as string | null) ?? null;
   } catch (error) {
     console.warn("[public-profile:trust:skipped]", error);
   }
@@ -375,7 +373,7 @@ async function readTrustMeta(profile: Row) {
     console.warn("[public-profile:genesis:skipped]", error);
   }
   return {
-    legal_identity_verified: legal || grandfathered,
+    legal_identity_verified: legal,
     real_human_verified: human,
     genesis_stamp: genesis,
     created_at_iso: profile["created_at"] ? new Date(profile["created_at"] as string).toISOString() : null,
