@@ -12,24 +12,24 @@ const DIDIT = "00000000-0000-4000-8000-0000000000a1";
 const UPGRADED = "00000000-0000-4000-8000-0000000000a2";
 const HUMAN = "00000000-0000-4000-8000-0000000000a3";
 const NOT_VERIFIED = "00000000-0000-4000-8000-0000000000a4";
-const PASSKEY = "00000000-0000-4000-8000-0000000000a5";
+const FAILED = "00000000-0000-4000-8000-0000000000a5";
 
 let db: PGlite;
 beforeAll(async () => {
   db = await replayDb();
-  const ids = [DIDIT, UPGRADED, HUMAN, NOT_VERIFIED, PASSKEY];
+  const ids = [DIDIT, UPGRADED, HUMAN, NOT_VERIFIED, FAILED];
   await db.exec(`
     insert into public.users (id, email) values ${ids.map((id, i) => `('${id}', 'm${i}@example.test')`).join(", ")};
     insert into public.profiles (id, username, verified) values
       ('${DIDIT}', 'didit', true), ('${UPGRADED}', 'upgraded', true), ('${HUMAN}', 'human', true),
-      ('${NOT_VERIFIED}', 'notverified', false), ('${PASSKEY}', 'passkey', true)
+      ('${NOT_VERIFIED}', 'notverified', false), ('${FAILED}', 'failed', true)
       on conflict (id) do update set username = excluded.username, verified = excluded.verified;
     insert into public.identity_verifications (user_id, is_verified, verified_real_name, verification_provider, unique_human_id) values
       ('${DIDIT}', true, 'Ann Didit', 'didit', 'h1'),
       ('${UPGRADED}', true, 'Bo W', 'w_identity', 'h2'),
       ('${HUMAN}', true, 'Cy W', 'w_identity', 'h3'),
       ('${NOT_VERIFIED}', true, 'Di Didit', 'didit', 'h4'),
-      ('${PASSKEY}', true, 'Ed P', 'passkey', 'h5');
+      ('${FAILED}', false, 'Ed P', 'didit', 'h5');
     insert into public.verified_identities (user_id, identity_nullifier, provider, tier, tier_1_real_human, tier_2_legal_identity, legal_name) values
       ('${UPGRADED}', 'n2', 'w_identity', 'tier_2_legal_identity', true, true, 'Bo Legal');
   `);
@@ -65,8 +65,8 @@ describe("db/0281 rout_public_identity_tiers", () => {
   it("shows only real human for a W Identity check", async () => {
     expect(await asVisitor(HUMAN)).toEqual([{ tier_1_real_human: true, tier_2_legal_identity: false }]);
   });
-  it("a passkey alone gives no tier", async () => {
-    expect(await asVisitor(PASSKEY)).toEqual([{ tier_1_real_human: false, tier_2_legal_identity: false }]);
+  it("a Didit check that did not pass gives no tier", async () => {
+    expect(await asVisitor(FAILED)).toEqual([{ tier_1_real_human: false, tier_2_legal_identity: false }]);
   });
   it("returns nothing for a profile that is not verified", async () => {
     expect(await asVisitor(NOT_VERIFIED)).toEqual([]);
