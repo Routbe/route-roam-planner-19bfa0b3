@@ -2498,6 +2498,18 @@ export interface PublicWorkspaceProfileDraftsRow {
   "published_at": string | Date | null;
 }
 
+export interface PublicWorkspacePspCredentialsRow {
+  "workspace_id": string;
+  "provider": string;
+  "ciphertext": string;
+  "iv": string;
+  "last4": string;
+  "mode": string;
+  "publishable_key": string | null;
+  "saved_by": string | null;
+  "verified_at": string | Date;
+}
+
 export interface PublicWorkspaceRootAliasesRow {
   "handle": string;
   "workspace_id": string;
@@ -2516,6 +2528,20 @@ export interface PublicWorkspaceSocialLinksRow {
   "last_error": string | null;
   "created_by": string | null;
   "created_at": string | Date;
+  "updated_at": string | Date;
+}
+
+export interface PublicWorkspaceTipSettingsRow {
+  "workspace_id": string;
+  "enabled": boolean;
+  "iban": string | null;
+  "account_name": string | null;
+  "presets_cents": Array<number>;
+  "allow_custom": boolean;
+  "min_cents": number;
+  "message": string | null;
+  "psp_enabled": boolean;
+  "updated_by": string | null;
   "updated_at": string | Date;
 }
 
@@ -2784,8 +2810,10 @@ export interface DbTables {
   "public.workspace_invites": PublicWorkspaceInvitesRow;
   "public.workspace_members": PublicWorkspaceMembersRow;
   "public.workspace_profile_drafts": PublicWorkspaceProfileDraftsRow;
+  "public.workspace_psp_credentials": PublicWorkspacePspCredentialsRow;
   "public.workspace_root_aliases": PublicWorkspaceRootAliasesRow;
   "public.workspace_social_links": PublicWorkspaceSocialLinksRow;
+  "public.workspace_tip_settings": PublicWorkspaceTipSettingsRow;
   "public.workspace_transfers": PublicWorkspaceTransfersRow;
   "public.workspaces": PublicWorkspacesRow;
   "storage.buckets": StorageBucketsRow;

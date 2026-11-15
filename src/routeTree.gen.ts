@@ -352,6 +352,7 @@ import { Route as UUsernameFeedbackRouteImport } from './routes/u.$username_.fee
 import { Route as UUsernameLiveRouteImport } from './routes/u.$username_.live'
 import { Route as UUsernameTipRouteImport } from './routes/u.$username_.tip'
 import { Route as WSlugFeedbackRouteImport } from './routes/w.$slug_.feedback'
+import { Route as WSlugSupportRouteImport } from './routes/w.$slug_.support'
 import { Route as AuthenticatedConsoleAppsIndexRouteImport } from './routes/_authenticated/console.apps.index'
 import { Route as AuthenticatedConsoleAppsAppIdRouteImport } from './routes/_authenticated/console.apps.$appId'
 import { Route as AuthenticatedConsoleAppsNewRouteImport } from './routes/_authenticated/console.apps.new'
@@ -2222,6 +2223,11 @@ const WSlugFeedbackRoute = WSlugFeedbackRouteImport.update({
   path: '/w/$slug/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WSlugSupportRoute = WSlugSupportRouteImport.update({
+  id: '/w/$slug_/support',
+  path: '/w/$slug/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedConsoleAppsIndexRoute =
   AuthenticatedConsoleAppsIndexRouteImport.update({
     id: '/',
@@ -3089,6 +3095,7 @@ export interface FileRoutesByFullPath {
   '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
   '/w/$slug/feedback': typeof WSlugFeedbackRoute
+  '/w/$slug/support': typeof WSlugSupportRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/console/': typeof AuthenticatedConsoleIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -3510,6 +3517,7 @@ export interface FileRoutesByTo {
   '/u/$username/live': typeof UUsernameLiveRoute
   '/u/$username/tip': typeof UUsernameTipRoute
   '/w/$slug/feedback': typeof WSlugFeedbackRoute
+  '/w/$slug/support': typeof WSlugSupportRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/console': typeof AuthenticatedConsoleIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
@@ -3948,6 +3956,7 @@ export interface FileRoutesById {
   '/u/$username_/live': typeof UUsernameLiveRoute
   '/u/$username_/tip': typeof UUsernameTipRoute
   '/w/$slug_/feedback': typeof WSlugFeedbackRoute
+  '/w/$slug_/support': typeof WSlugSupportRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/console/': typeof AuthenticatedConsoleIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -4387,6 +4396,7 @@ export interface FileRouteTypes {
     | '/u/$username/live'
     | '/u/$username/tip'
     | '/w/$slug/feedback'
+    | '/w/$slug/support'
     | '/admin/'
     | '/console/'
     | '/dashboard/'
@@ -4808,6 +4818,7 @@ export interface FileRouteTypes {
     | '/u/$username/live'
     | '/u/$username/tip'
     | '/w/$slug/feedback'
+    | '/w/$slug/support'
     | '/admin'
     | '/console'
     | '/dashboard'
@@ -5245,6 +5256,7 @@ export interface FileRouteTypes {
     | '/u/$username_/live'
     | '/u/$username_/tip'
     | '/w/$slug_/feedback'
+    | '/w/$slug_/support'
     | '/_authenticated/admin/'
     | '/_authenticated/console/'
     | '/_authenticated/dashboard/'
@@ -5517,6 +5529,7 @@ export interface RootRouteChildren {
   UUsernameLiveRoute: typeof UUsernameLiveRoute
   UUsernameTipRoute: typeof UUsernameTipRoute
   WSlugFeedbackRoute: typeof WSlugFeedbackRoute
+  WSlugSupportRoute: typeof WSlugSupportRoute
   ApiAgentProfileDraftRoute: typeof ApiAgentProfileDraftRoute
   ApiAgentSandboxAppsRoute: typeof ApiAgentSandboxAppsRoute
   ApiAgentSandboxProfileRoute: typeof ApiAgentSandboxProfileRoute
@@ -7987,6 +8000,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WSlugFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/w/$slug_/support': {
+      id: '/w/$slug_/support'
+      path: '/w/$slug/support'
+      fullPath: '/w/$slug/support'
+      preLoaderRoute: typeof WSlugSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/console/apps/': {
       id: '/_authenticated/console/apps/'
       path: '/'
@@ -9436,6 +9456,7 @@ const rootRouteChildren: RootRouteChildren = {
   UUsernameLiveRoute: UUsernameLiveRoute,
   UUsernameTipRoute: UUsernameTipRoute,
   WSlugFeedbackRoute: WSlugFeedbackRoute,
+  WSlugSupportRoute: WSlugSupportRoute,
   ApiAgentProfileDraftRoute: ApiAgentProfileDraftRoute,
   ApiAgentSandboxAppsRoute: ApiAgentSandboxAppsRoute,
   ApiAgentSandboxProfileRoute: ApiAgentSandboxProfileRoute,

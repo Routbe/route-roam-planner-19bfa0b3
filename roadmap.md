@@ -306,11 +306,12 @@
 - [x] F2.3 Logboek via bestaande audit_logs-controle (geen BLAKE3)
 - [x] F2.4 "Geverifieerd" gekoppeld aan Didit-resultaat uit de database (geen nieuwe rekenmodule)
 - [x] db/0281 (Didit-resultaat voor het vinkje) live op Neon (GO 2026-11-15, één transactie, checksum 8622ddfb…)
-- [ ] F1.3 werkruimte-steunpagina en -vragen: wacht op beslissing eigenaar (wie antwoordt, welke rekening) en een migratie
+- [x] F1.3 beslissingen eigenaar ontvangen (zie executive directief hieronder)
 - [ ] "Synchroniseer via primair toestel": wacht op een goedgekeurd protocol voor sleuteloverdracht
 
 ## Executive directief 2026-11-15 (0281 GO, werkruimte, badges)
 - [x] 0281 live op Neon via migration-rollout (rout_app EXECUTE, PUBLIC geen)
 - [x] Blauw vinkje uitsluitend uit Didit-attestatie (db/0282 live); betaald/Pro krijgt een aparte kroon-badge (Supporter/Pro)
-- [ ] /w/<werkruimte>/ask: vragen in de browser versleuteld voor de werkruimte; leiders/beheerders lezen en antwoorden
-- [ ] /w/<werkruimte>/support: steun via de betaalinstellingen van de werkruimte, los van de oprichter
+- [ ] /w/<werkruimte>/ask: versleuteld voor eigenaar + beheerders, per vraag openbaar of privé antwoorden — volgende stap (nieuwe worker-bewerkingen + migratie)
+- [x] /w/<werkruimte>/support: gebouwd (IBAN + eigen Stripe/Mollie van de werkruimte; Didit-eigenaar of geverifieerd domein)
+- [ ] db/0283 (steunpagina werkruimte) live op Neon: wacht op GO van de eigenaar

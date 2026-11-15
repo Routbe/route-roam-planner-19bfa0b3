@@ -88,6 +88,8 @@ const PUBLIC_SERVER_FNS = new Set([
   "src/lib/studio-profile.functions.ts#getPublicProfileByHandle",
   "src/lib/tip-page.functions.ts#fetchTipSocialImages",
   "src/lib/tip-page.functions.ts#getPublicTipPage",
+  "src/lib/workspace-support.functions.ts#getPublicWsSupport",
+  "src/lib/workspace-support.functions.ts#startWsSupportTip",
   "src/lib/tip-page.functions.ts#getTipJarQr",
   "src/lib/tip-page.functions.ts#startTipPayment",
   "src/lib/tour-draft.functions.ts#beginAuthIntent",

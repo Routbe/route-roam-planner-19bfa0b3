@@ -76,3 +76,4 @@
 
 ## Public security claims
 - Public copy states only what a test, report or HANDOVER entry in the repo shows, with its scope and open limits; the Trust Center status list lives in src/lib/security-status.ts (same items and levels in nl/en/fr/de, guarded by its test). Why: building blocks and statistical measurements must not read as live guarantees.
+- Workspace support (/w/<slug>/support, db/0283) is reached only through the rout_ws_support_*/rout_ws_psp_*/rout_public_ws_support definers: owner/admin from rout.current_user_id, eligibility = owner's Didit OR verified domain, holder-name match inside the database, keys sealed with context `workspace:<id>:<provider>`. Why: workspace money never routes to the founder, and admins never receive the owner's legal name.
