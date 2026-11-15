@@ -10,11 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/UserAvatar";
 import { buildEpcPayload } from "@/lib/epc-qr";
-import { startWsSupportTip } from "@/lib/workspace-support.functions";
-import type { PublicWsSupport } from "@/lib/workspace-support.server";
+import { getPublicWsSupport, startWsSupportTip } from "@/lib/workspace-support.functions";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
+type PublicWsSupport = NonNullable<Awaited<ReturnType<typeof getPublicWsSupport>>>;
 const StripeEmbeddedPay = lazy(() => import("@/components/tip/StripeEmbeddedPay"));
 const groupIban = (iban: string) => iban.replace(/(.{4})/g, "$1 ").trim();
 
