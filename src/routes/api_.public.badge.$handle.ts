@@ -65,7 +65,7 @@ export const Route = createFileRoute("/api_/public/badge/$handle")({
           if (!row) return new Response("Not found", { status: 404, headers: { "cache-control": "public, max-age=300" } });
           const prefs = parseDisplayPrefs(row["display_prefs"]);
           const badge = publicBadgeKind({
-            verified: row["verified"] === true,
+            diditVerified: row["verified"] === true,
             isBusiness: row["is_business"] === true,
             isInfluencer: row["is_influencer"] === true,
             badgeVisible: prefs.badgeVisible,

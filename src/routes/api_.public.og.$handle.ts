@@ -63,7 +63,7 @@ export const Route = createFileRoute("/api_/public/og/$handle")({
           accent = prefs.accentColor ?? (p["patternColor"] as string | null) ?? t.accent ?? accent;
           const { publicBadgeKind } = await import("@/lib/badge-rules");
           const badge: OgBadge = publicBadgeKind({
-            verified,
+            diditVerified: verified,
             isBusiness: row["is_business"] === true,
             isInfluencer: row["is_influencer"] === true,
             badgeVisible: prefs.badgeVisible,

@@ -9,12 +9,19 @@ export const getCommunityStats = createServerFn({ method: "GET" }).handler(
     try {
       const { sql } = await import("@/lib/neon");
       const rows = (await sql`
-        select count(*)::int as members,
-               count(*) filter (where coalesce(verified, false))::int as verified
-          from public.profiles where username is not null
-      `) as { members: number; verified: number }[];
+        select count(*)::int as members from public.profiles where username is not null
+      `) as { members: number }[];
       const r = rows[0];
-      return r ? { members: Number(r.members) || 0, verified: Number(r.verified) || 0 } : null;
+      if (!r) return null;
+      // "Verified" means a completed Didit check (db/0282), never a payment or admin flag.
+      let verified = 0;
+      try {
+        const v = (await sql`select public.rout_public_didit_member_count() as n`) as { n: number }[];
+        verified = Number(v[0]?.n) || 0;
+      } catch {
+        verified = 0;
+      }
+      return { members: Number(r.members) || 0, verified };
     } catch {
       return null;
     }
